@@ -5,6 +5,17 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ACCEPT_ATTR } from '@shared/api';
+
+/**
+ * Phones get the bare MIME wildcards: any extra extension in `accept` makes
+ * Android Chrome skip its Photo Picker (gallery) and show a Camera/Files chooser
+ * instead; iOS shows the Photos library either way. Desktop keeps the extensions
+ * so OS file dialogs don't hide HEIC/RAW files they have no MIME mapping for.
+ */
+const PICKER_ACCEPT =
+  typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches
+    ? 'image/*,video/*'
+    : ACCEPT_ATTR;
 import { personOf, sectionTitle, SECTION_ORDER, type DayKey } from '@shared/trip';
 import { formatBytes, plural } from '@shared/format';
 import { CheckIcon, CloseIcon, UploadIcon, WarningIcon } from '@/lib/icons';
@@ -142,7 +153,7 @@ export function UploadSheet({ wide }: { wide: boolean }) {
                   className={s.fileInput}
                   type="file"
                   multiple
-                  accept={ACCEPT_ATTR}
+                  accept={PICKER_ACCEPT}
                   onChange={(e) => {
                     onFiles(e.target.files);
                     e.target.value = '';
