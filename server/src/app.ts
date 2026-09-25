@@ -93,6 +93,10 @@ export async function buildApp(overrides: ConfigOverrides = {}): Promise<BuiltAp
     logger: { level: config.logLevel },
     trustProxy: false,
     bodyLimit: 2 * 1024 * 1024, // JSON bodies only; uploads go through tus
+    // Drop sockets idle for 60 s, so a stalled upload PATCH (phone asleep,
+    // dead proxy connection) is closed and its tus lock freed instead of
+    // hanging forever. SSE pings every 25 s, so /api/events stays open.
+    connectionTimeout: 60_000,
     routerOptions: { ignoreTrailingSlash: true },
     rewriteUrl: (req) => stripBase(req.url ?? '/'),
   });

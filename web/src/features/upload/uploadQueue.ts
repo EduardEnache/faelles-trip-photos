@@ -227,9 +227,40 @@ async function pollUploadResult(clientId: string, uploadId: string | null) {
   });
 }
 
+/** No progress for this long on an 'uploading' row → abort and resume. */
+const STALL_MS = 45_000;
+const stopWatchdog = new Map<string, () => void>();
+
+function isNoPersonError(error: Error): boolean {
+  if (!(error instanceof DetailedError)) return false;
+  try {
+    return (JSON.parse(error.originalResponse?.getBody() ?? '') as { error?: string }).error === 'no_person';
+  } catch {
+    return false;
+  }
+}
+
 function startTusUpload(clientId: string, file: File) {
   activeCount++;
   useUploadQueue.getState().update(clientId, { status: 'uploading', message: null });
+
+  let lastProgressAt = Date.now();
+  // A request can stall without ever erroring (mobile browsers freeze
+  // backgrounded tabs; proxies keep dead sockets open). If an 'uploading' row
+  // makes no progress for STALL_MS, abort and start again: tus-js-client
+  // re-reads the offset with HEAD and continues from there.
+  const watchdog = window.setInterval(() => {
+    const entry = useUploadQueue.getState().entries.find((e) => e.clientId === clientId);
+    if (!entry || entry.status !== 'uploading') {
+      lastProgressAt = Date.now();
+      return;
+    }
+    if (Date.now() - lastProgressAt < STALL_MS) return;
+    lastProgressAt = Date.now();
+    useUploadQueue.getState().update(clientId, { status: 'waiting', message: 'Retrying…' });
+    void upload.abort(false).then(() => upload.start());
+  }, 5_000);
+  stopWatchdog.set(clientId, () => window.clearInterval(watchdog));
 
   const upload: TusUpload = new TusUpload(file, {
     endpoint: uploadsEndpoint(),
@@ -242,12 +273,19 @@ function startTusUpload(clientId: string, file: File) {
       [UPLOAD_METADATA_KEYS.lastModified]: String(file.lastModified),
     },
     onProgress(bytesSent) {
+      lastProgressAt = Date.now();
       useUploadQueue.getState().update(clientId, { bytesSent, status: 'uploading', message: null });
     },
     onShouldRetry(error) {
       const status = error.originalResponse?.getStatus();
+      // 409 on a PATCH is usually an offset mismatch after a stalled or
+      // replayed request (phone slept, app switch) and 423 a held lock: both
+      // heal on retry, which re-reads the offset with HEAD. Only our own
+      // 'no_person' 409 is permanent.
+      const recoverable =
+        status === 429 || status === 423 || (status === 409 && !isNoPersonError(error));
       // Permanent, non-retryable outcomes: let onError handle them.
-      if (status != null && status !== 429 && status < 500) return false;
+      if (status != null && !recoverable && status < 500) return false;
       useUploadQueue.getState().update(clientId, {
         status: 'waiting',
         message: navigator.onLine ? 'Retrying…' : 'Waiting for connection',
@@ -256,6 +294,8 @@ function startTusUpload(clientId: string, file: File) {
     },
     onError(error) {
       activeCount--;
+      stopWatchdog.get(clientId)?.();
+      stopWatchdog.delete(clientId);
       liveUploads.delete(clientId);
       fileRefs.delete(clientId);
       const status = error instanceof DetailedError ? error.originalResponse?.getStatus() : undefined;
@@ -271,7 +311,7 @@ function startTusUpload(clientId: string, file: File) {
         useUploadQueue.getState().update(clientId, { status: 'error', message: 'File is too large.' });
       } else if (status === 507) {
         useUploadQueue.getState().update(clientId, { status: 'error', message: 'Not enough space on the server.' });
-      } else if (status === 409) {
+      } else if (status === 409 && isNoPersonError(error)) {
         useUploadQueue.getState().update(clientId, { status: 'error', message: 'Choose who you are, then retry.' });
       } else {
         useUploadQueue.getState().update(clientId, { status: 'error', message: 'Upload failed. Tap to retry.' });
@@ -280,6 +320,8 @@ function startTusUpload(clientId: string, file: File) {
     },
     onSuccess(payload) {
       activeCount--;
+      stopWatchdog.get(clientId)?.();
+      stopWatchdog.delete(clientId);
       liveUploads.delete(clientId);
       const res = payload.lastResponse;
       const itemId = res.getHeader(UPLOAD_HEADERS.itemId) ?? null;
@@ -358,6 +400,8 @@ export function retryWithFile(clientId: string, file: File): void {
 }
 
 export function dismissEntry(clientId: string): void {
+  stopWatchdog.get(clientId)?.();
+  stopWatchdog.delete(clientId);
   fileRefs.delete(clientId);
   liveUploads.delete(clientId);
   useUploadQueue.getState().remove(clientId);
