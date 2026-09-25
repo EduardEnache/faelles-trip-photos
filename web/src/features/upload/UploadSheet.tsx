@@ -12,10 +12,14 @@ import { ACCEPT_ATTR } from '@shared/api';
  * instead; iOS shows the Photos library either way. Desktop keeps the extensions
  * so OS file dialogs don't hide HEIC/RAW files they have no MIME mapping for.
  */
-const PICKER_ACCEPT =
-  typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches
-    ? 'image/*,video/*'
-    : ACCEPT_ATTR;
+const IS_TOUCH = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches;
+const PICKER_ACCEPT = IS_TOUCH ? 'image/*,video/*' : ACCEPT_ATTR;
+/**
+ * The Android gallery picker blanks GPS for privacy, so phones also get a
+ * "pick from Files" input: the extensions make Android show its chooser
+ * (Files / My Files), whose files keep their location.
+ */
+const FILES_ACCEPT = ACCEPT_ATTR;
 import { personOf, sectionTitle, SECTION_ORDER, type DayKey } from '@shared/trip';
 import { formatBytes, plural } from '@shared/format';
 import { CheckIcon, CloseIcon, UploadIcon, WarningIcon } from '@/lib/icons';
@@ -35,6 +39,7 @@ export function UploadSheet({ wide }: { wide: boolean }) {
   const disk = useLibrary((st) => st.disk);
   const [drag, setDrag] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const filesInputRef = useRef<HTMLInputElement>(null);
   const retryTargetRef = useRef<string | null>(null);
 
   const person = me ? personOf(me) : null;
@@ -167,6 +172,28 @@ export function UploadSheet({ wide }: { wide: boolean }) {
                   <div className={s.dropSub}>{wide ? 'or click to browse' : 'Tap to open your library'}</div>
                 </div>
               </label>
+            )}
+
+            {IS_TOUCH && !disk?.uploadsBlocked && (
+              <div className={s.filesPick}>
+                <input
+                  ref={filesInputRef}
+                  className={s.fileInput}
+                  type="file"
+                  multiple
+                  accept={FILES_ACCEPT}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  onChange={(e) => {
+                    onFiles(e.target.files);
+                    e.target.value = '';
+                  }}
+                />
+                <button type="button" className={s.filesLink} onClick={() => filesInputRef.current?.click()}>
+                  Keep locations: pick from Files
+                </button>
+                <div className={s.filesHint}>The gallery removes where photos were taken. In Files, open DCIM › Camera.</div>
+              </div>
             )}
 
             <div className={s.notes}>
