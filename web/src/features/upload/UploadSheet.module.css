@@ -1,0 +1,241 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  background: var(--scrim);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fade var(--dur-1) var(--ease);
+}
+.backdrop.wide {
+  align-items: center;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 520px;
+  max-height: 92vh;
+  overflow: auto;
+  background: var(--papir);
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  padding: var(--s-6) var(--s-6) calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  animation: rise var(--dur-3) var(--ease);
+}
+.wide .sheet {
+  border-radius: var(--r-sheet);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.title {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.asRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--sten);
+}
+.asAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--on-person);
+}
+.asName {
+  color: var(--blaek);
+  font-weight: 500;
+}
+.change {
+  border: none;
+  background: none;
+  color: var(--fjord);
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 44px var(--s-5);
+  border-radius: var(--r-card);
+  border: 1.5px dashed var(--line-strong);
+  background: transparent;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--dur-1) var(--ease);
+}
+.drop:hover,
+.drop:focus-within {
+  border-color: var(--fjord);
+}
+.drop.active {
+  border-color: var(--fjord);
+  background: #eef1f2;
+}
+
+.dropIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--fjord);
+  color: var(--papir);
+  display: grid;
+  place-items: center;
+}
+
+.dropTitle {
+  font-size: 18px;
+  font-weight: 500;
+}
+.dropSub {
+  font-size: 14px;
+  color: var(--sten);
+}
+
+.fileInput {
+  composes: visually-hidden from global;
+}
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  text-align: center;
+}
+.notesCaps {
+  composes: meta from global;
+  line-height: 1.6;
+  color: var(--sten);
+}
+.notesBody {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sten);
+  max-width: 340px;
+}
+
+.big {
+  font-size: 72px;
+  line-height: 0.9;
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.bigPct {
+  font-size: 32px;
+  color: var(--faint);
+}
+
+.overallBar {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--taage);
+  overflow: hidden;
+}
+.overallFill {
+  height: 100%;
+  background: var(--fjord);
+  transition: width 0.15s linear;
+}
+
+.overallLine {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  composes: meta from global;
+  color: var(--sten);
+}
+
+.doneWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 6px 0;
+}
+.doneCheck {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--fjord);
+  color: var(--papir);
+  display: grid;
+  place-items: center;
+  animation: rise var(--dur-2) var(--ease);
+}
+.doneTitle {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.doneBody {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--sten);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  max-height: 260px;
+  overflow: auto;
+  border-top: 1px solid var(--taage);
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--sten);
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+.primary {
+  flex: 1;
+  height: 48px;
+  border-radius: var(--r-pill);
+  background: var(--fjord);
+  color: var(--papir);
+  font-size: 15px;
+  font-weight: 500;
+}
+.secondary {
+  flex: 1;
+  height: 48px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.lowSpace {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--eg);
+}

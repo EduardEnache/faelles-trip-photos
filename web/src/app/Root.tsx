@@ -1,19 +1,19 @@
 /**
- * app root: session gate → shell (top bar / tab bar / tabs /
- * overlays / toast host). SCAFFOLD STUB: proves the integration compiles.
- * Replace entirely, keeping the slot usage from src/slots.ts.
+ * app root: session gate (PIN → Who → shell) then the shell.
+ * "Switch person" reuses the Who screen as a full-screen takeover on top of
+ * the ready state (choosingPerson), without losing library/route state.
  */
-import { Suspense, useEffect } from 'react';
-import { closeOverlay, useRoute } from '@/lib/router';
+import { useEffect } from 'react';
 import { useSession } from '@/state/session';
 import { useLibrary } from '@/state/library';
-import { DayCaption, FeaturedMemoryCard, MemoriesTab, MemoryPlayer, PlacesTab } from '@/slots';
-import { Wordmark } from '@/ui';
+import { PinGate } from '@/features/auth/PinGate';
+import { WhoScreen } from '@/features/auth/WhoScreen';
+import { Shell } from './Shell';
 
 export default function Root() {
   const status = useSession((s) => s.status);
+  const choosingPerson = useSession((s) => s.choosingPerson);
   const refresh = useSession((s) => s.refresh);
-  const route = useRoute();
 
   useEffect(() => {
     void refresh();
@@ -25,31 +25,12 @@ export default function Root() {
     return useLibrary.getState().startLive();
   }, [status]);
 
-  if (status !== 'ready') {
-    return (
-      <main style={{ padding: 'var(--s-6)' }}>
-        <Wordmark />
-      </main>
-    );
+  if (status === 'unknown') {
+    return <div aria-hidden="true" style={{ minHeight: '100dvh', background: 'var(--kalk)' }} />;
   }
-
-  return (
-    <>
-      <main>
-        {route.tab === 'library' && (
-          <>
-            <FeaturedMemoryCard />
-            <DayCaption day="2026-09-25" editable />
-          </>
-        )}
-        <Suspense fallback={null}>
-          {route.tab === 'memories' && <MemoriesTab />}
-          {route.tab === 'places' && <PlacesTab />}
-        </Suspense>
-      </main>
-      <Suspense fallback={null}>
-        {route.memory && <MemoryPlayer memoryId={route.memory} onClose={closeOverlay} />}
-      </Suspense>
-    </>
-  );
+  if (status === 'locked') return <PinGate />;
+  if (status === 'needs-person' || choosingPerson) {
+    return <WhoScreen mode={status === 'needs-person' ? 'first' : 'change'} />;
+  }
+  return <Shell />;
 }

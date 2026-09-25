@@ -1,0 +1,31 @@
+.wrap {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--pad-x);
+}
+
+.featured {
+  margin: 0 0 var(--s-6);
+}
+
+.empty {
+  padding: 80px 0;
+  text-align: center;
+  color: var(--sten);
+  font-size: var(--t-body);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.emptyBig {
+  font-size: var(--t-heading);
+  font-weight: 500;
+  color: var(--blaek);
+}
+
+.footer {
+  padding: 48px 0 32px;
+  text-align: center;
+  composes: meta from global;
+  color: var(--sten);
+}

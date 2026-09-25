@@ -1,0 +1,238 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-player);
+  background: var(--nat);
+  color: var(--on-dark);
+  overflow: hidden;
+  animation: fade var(--dur-2) var(--ease);
+}
+
+.slides {
+  position: absolute;
+  inset: 0;
+}
+
+.slideLayer {
+  position: absolute;
+  inset: -5%;
+  overflow: hidden;
+}
+
+.slideLayer img,
+.slideLayer video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: 50% 50%;
+}
+
+.kb0 img,
+.kb0 video {
+  transform: scale(calc(1.02 + 0.12 * var(--p, 0))) translate(calc(var(--p, 0) * -2%), calc(var(--p, 0) * -1.5%));
+}
+.kb1 img,
+.kb1 video {
+  transform: scale(calc(1.14 - 0.11 * var(--p, 0))) translate(calc((1 - var(--p, 0)) * 2%), calc((1 - var(--p, 0)) * 1%));
+}
+.noZoom img,
+.noZoom video {
+  transform: none;
+}
+
+.slideLayer.front {
+  opacity: var(--fade, 1);
+  transition: opacity 20ms linear;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(14, 17, 19, 0.45), rgba(14, 17, 19, 0) 22%, rgba(14, 17, 19, 0) 55%, rgba(14, 17, 19, 0.6));
+  pointer-events: none;
+}
+
+.tapGrid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.top {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.segments {
+  display: flex;
+  gap: 4px;
+}
+.seg {
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(251, 250, 248, 0.3);
+  overflow: hidden;
+}
+.segFill {
+  height: 100%;
+  width: 0%;
+  background: var(--papir);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.metaTitle {
+  font-size: var(--t-label);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.metaLine {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.04em;
+  color: var(--on-dark-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex: none;
+}
+
+.titleCard {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  padding: 0 var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  pointer-events: none;
+  animation: rise 0.8s var(--ease);
+}
+.titleEyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.14em;
+}
+.titleMain {
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+}
+@media (min-width: 900px) {
+  .titleMain {
+    font-size: 72px;
+  }
+}
+
+.bottom {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.moodBtn {
+  min-width: 0;
+  overflow: hidden;
+}
+.moodBtn > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bottomActions {
+  display: flex;
+  gap: var(--s-2);
+  flex: none;
+}
+
+.ended {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: rgba(14, 17, 19, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-5);
+  text-align: center;
+  padding: 0 var(--s-6);
+  animation: fade var(--dur-2) var(--ease);
+}
+.endedTitle {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.endedActions {
+  display: flex;
+  gap: var(--s-3);
+}
+
+.unavailable {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-player);
+  background: var(--nat);
+  color: var(--on-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-5);
+  text-align: center;
+  padding: 0 var(--s-6);
+}

@@ -7,3 +7,5 @@ storage-dev/
 .DS_Store
 e2e/out/
 server/test/.tmp/
+e2e/__pycache__/
+e2e/shots/

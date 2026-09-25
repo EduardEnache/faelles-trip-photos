@@ -1,0 +1,78 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 20px;
+}
+
+.viewBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--touch);
+  padding: var(--s-1) 2px;
+  margin: calc(var(--s-1) * -1) -2px;
+  border: none;
+  background: none;
+  color: var(--sten);
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 6px;
+}
+.viewBtn:hover {
+  color: var(--blaek);
+}
+
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addBtn {
+  min-height: var(--touch);
+  padding: var(--s-1) 2px;
+  margin: calc(var(--s-1) * -1) -2px;
+  border: none;
+  background: none;
+  color: var(--sten);
+  font-size: 14px;
+  cursor: pointer;
+}
+.addBtn:hover {
+  color: var(--fjord);
+}
+
+.editRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--blaek);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  padding: var(--s-1) 2px;
+}
+.input:focus {
+  outline: none;
+  border-bottom-color: var(--fjord);
+}
+
+.readOnly {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--sten);
+  font-size: 14px;
+}

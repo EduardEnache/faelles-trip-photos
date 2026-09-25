@@ -1,0 +1,10 @@
+services:
+  faelles:
+    container_name: faelles-dev
+    ports:
+      - "127.0.0.1:8498:8497"
+    volumes:
+      - ./storage-dev:/data
+    environment:
+      LOG_LEVEL: debug
+    restart: "no"

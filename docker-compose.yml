@@ -1,0 +1,18 @@
+services:
+  faelles:
+    build:
+      context: .
+      target: runtime
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-dev}
+    image: faelles-trip-photos:latest
+    ports:
+      - "127.0.0.1:8497:8497"
+    volumes:
+      - ./storage:/data
+    environment:
+      FAELLES_PIN: ${FAELLES_PIN:-1234}
+      ALBUM_TITLE: ${ALBUM_TITLE:-Denmark 2026}
+      BUILD_VERSION: ${BUILD_VERSION:-dev}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    restart: unless-stopped

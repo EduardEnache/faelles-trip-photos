@@ -1,0 +1,81 @@
+.toast {
+  position: fixed;
+  z-index: var(--z-toast);
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 400px;
+  background: var(--blaek);
+  color: var(--kalk);
+  border-radius: var(--r-card);
+  padding: 14px var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-toast);
+  animation: rise var(--dur-2) var(--ease);
+}
+@media (min-width: 900px) {
+  .toast {
+    bottom: 28px;
+  }
+}
+.toast.select {
+  bottom: 96px;
+}
+.toast.error {
+  background: var(--dannebrog);
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pct {
+  composes: meta from global;
+  color: var(--on-dark-muted);
+  flex: none;
+}
+
+.bar {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(244, 242, 238, 0.16);
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  background: var(--kalk);
+  transition: width 0.15s linear;
+}
+.barFill.done {
+  background: var(--havglas);
+}
+
+.sub {
+  composes: meta from global;
+  color: var(--on-dark-muted);
+}
+
+.action {
+  align-self: flex-start;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  background: var(--kalk);
+  color: var(--blaek);
+  font-size: 13px;
+  font-weight: 500;
+}

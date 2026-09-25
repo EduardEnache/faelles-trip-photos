@@ -1,0 +1,138 @@
+.wrap {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--pad-x) var(--s-8);
+}
+
+.hero {
+  padding: 20px 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@media (min-width: 900px) {
+  .hero {
+    padding: 48px 0 32px;
+  }
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  letter-spacing: var(--ls-meta);
+  color: var(--sten);
+}
+
+.title {
+  font-size: var(--t-display-mobile);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+@media (min-width: 900px) {
+  .title {
+    font-size: var(--t-display);
+  }
+}
+
+.intro {
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  color: var(--sten);
+  max-width: 560px;
+  text-wrap: pretty;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--s-4);
+}
+
+.card {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-card);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--havglas);
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-3) var(--ease);
+}
+.card:hover .photo {
+  transform: scale(1.04);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(17, 20, 22, 0.6), rgba(17, 20, 22, 0) 55%);
+}
+
+.len {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  background: rgba(251, 250, 248, 0.9);
+  display: flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  color: var(--blaek);
+}
+
+.body {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--on-dark);
+}
+
+.cardTitle {
+  font-size: 24px;
+  line-height: 1.08;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.cardSub {
+  font-size: var(--t-label);
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+  opacity: 0.92;
+}
+
+.empty {
+  padding: 80px 0;
+  text-align: center;
+  color: var(--sten);
+  font-size: var(--t-body);
+  max-width: 420px;
+  margin: 0 auto;
+}

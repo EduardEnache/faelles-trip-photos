@@ -1,0 +1,96 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  flex: none;
+  background: var(--taage);
+  display: grid;
+  place-items: center;
+  color: var(--sten);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.size {
+  composes: meta from global;
+  color: var(--sten);
+  flex: none;
+}
+
+.meta {
+  composes: meta from global;
+  color: var(--sten);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  background: var(--fjord);
+  transition: width 0.15s linear;
+}
+.barFill.done {
+  background: var(--moss);
+}
+.barFill.error {
+  background: var(--dannebrog);
+}
+
+.status {
+  width: 34px;
+  text-align: right;
+  composes: meta from global;
+  color: var(--sten);
+  flex: none;
+}
+.status.done {
+  color: var(--moss);
+}
+.status.error {
+  color: var(--dannebrog);
+}
+
+.retry {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--sten);
+}
+.retry:hover {
+  background: var(--hover);
+}

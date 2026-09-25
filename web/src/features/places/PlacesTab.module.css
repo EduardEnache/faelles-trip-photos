@@ -1,0 +1,164 @@
+.wrap {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--pad-x) var(--s-8);
+}
+
+.hero {
+  padding: 20px 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@media (min-width: 900px) {
+  .hero {
+    padding: 48px 0 32px;
+  }
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  letter-spacing: var(--ls-meta);
+  color: var(--sten);
+}
+
+.title {
+  font-size: var(--t-display-mobile);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+@media (min-width: 900px) {
+  .title {
+    font-size: var(--t-display);
+  }
+}
+
+.mapBox {
+  position: relative;
+  height: 220px;
+  border-radius: var(--r-card);
+  overflow: hidden;
+  margin-bottom: var(--s-3);
+  background: var(--taage);
+}
+@media (min-width: 900px) {
+  .mapBox {
+    height: 380px;
+  }
+}
+
+.mapEl {
+  position: absolute;
+  inset: 0;
+}
+
+.mapFallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 var(--s-6);
+  text-align: center;
+}
+
+.mapFallbackText {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  letter-spacing: var(--ls-meta);
+  color: var(--sten);
+  line-height: 1.7;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--taage);
+  cursor: pointer;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+}
+.row:hover {
+  opacity: 0.75;
+}
+.row:last-child {
+  border-bottom: none;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  color: var(--eg);
+  width: 28px;
+  flex: none;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font-size: var(--t-label);
+  color: var(--sten);
+}
+
+.thumbs {
+  display: flex;
+  gap: 3px;
+  flex: none;
+}
+
+.thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-tile);
+  object-fit: cover;
+  background: var(--taage);
+}
+@media (min-width: 900px) {
+  .thumb {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.empty {
+  padding: 80px 0;
+  text-align: center;
+  color: var(--sten);
+  font-size: var(--t-body);
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.attribution {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--sten);
+  opacity: 0.8;
+}

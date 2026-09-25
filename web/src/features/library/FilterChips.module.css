@@ -1,0 +1,47 @@
+.rail {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  margin: 0 calc(var(--pad-x) * -1);
+  padding: 0 var(--pad-x) 8px;
+}
+
+.chip {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--blaek);
+  font-size: var(--t-label);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  transition: all var(--dur-1) var(--ease);
+}
+.chip.withAvatar {
+  padding-left: 6px;
+}
+.chip.active {
+  background: var(--blaek);
+  border-color: var(--blaek);
+  color: var(--kalk);
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  opacity: 0.6;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: var(--on-person);
+}
