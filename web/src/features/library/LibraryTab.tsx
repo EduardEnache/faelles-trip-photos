@@ -86,7 +86,7 @@ export function LibraryTab() {
       )}
       {allItems.length > 0 && (
         <div className={s.footer}>
-          {allItems.length} ORIGINALS · {formatBytes(totalBytes).toUpperCase()} · STORED AT HOME
+          {allItems.length} {allItems.length === 1 ? 'ORIGINAL' : 'ORIGINALS'} · {formatBytes(totalBytes).toUpperCase()} · STORED AT HOME
         </div>
       )}
     </div>

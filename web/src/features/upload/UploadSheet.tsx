@@ -195,7 +195,9 @@ export function UploadSheet({ wide }: { wide: boolean }) {
             </div>
             <div className={s.doneTitle}>{doneTitle}</div>
             <div className={s.doneBody}>
-              Full resolution, attributed to {person?.name ?? 'you'}. {sortedLine}
+              {newCount === 0
+                ? 'Nothing new to add. These files were uploaded before, so they were skipped.'
+                : `Full resolution, attributed to ${person?.name ?? 'you'}. ${sortedLine}`}
             </div>
           </div>
         )}
