@@ -64,8 +64,7 @@
   font-family: var(--font-sans);
   padding: var(--s-1) 2px;
 }
-.input:focus {
-  outline: none;
+.input:focus-visible {
   border-bottom-color: var(--fjord);
 }
 

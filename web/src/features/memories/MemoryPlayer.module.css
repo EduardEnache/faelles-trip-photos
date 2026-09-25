@@ -5,6 +5,7 @@
   background: var(--nat);
   color: var(--on-dark);
   overflow: hidden;
+  overscroll-behavior: contain;
   animation: fade var(--dur-2) var(--ease);
 }
 
@@ -122,6 +123,7 @@
   font-family: var(--font-mono);
   font-size: var(--t-meta);
   letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
   color: var(--on-dark-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -154,6 +156,7 @@
   font-family: var(--font-mono);
   font-size: var(--t-meta);
   letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
 }
 .titleMain {
   font-size: 44px;
@@ -161,6 +164,7 @@
   font-weight: 500;
   letter-spacing: -0.04em;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+  text-wrap: balance;
 }
 @media (min-width: 900px) {
   .titleMain {

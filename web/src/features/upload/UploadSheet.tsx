@@ -12,25 +12,9 @@ import { IconButton } from '@/ui';
 import { closeOverlay, goToDay, navigateTab } from '@/lib/router';
 import { useSession } from '@/state/session';
 import { useLibrary } from '@/state/library';
-import {
-  acknowledgeFinished,
-  enqueueFiles,
-  retryWithFile,
-  useUploadEntries,
-  type QueueEntry,
-} from './uploadQueue';
+import { acknowledgeFinished, enqueueFiles, retryWithFile, stageOf, useUploadEntries } from './uploadQueue';
 import { UploadRow } from './UploadRow';
 import s from './UploadSheet.module.css';
-
-type Stage = 'pick' | 'progress' | 'done';
-
-function stageOf(entries: QueueEntry[]): Stage {
-  if (!entries.length) return 'pick';
-  const active = entries.some(
-    (e) => e.status === 'queued' || e.status === 'uploading' || e.status === 'waiting' || e.status === 'needs-file',
-  );
-  return active ? 'progress' : 'done';
-}
 
 export function UploadSheet({ wide }: { wide: boolean }) {
   const entries = useUploadEntries();

@@ -189,6 +189,7 @@ export default function MemoryPlayer({ memoryId, onClose }: MemoryPlayerProps) {
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    v.muted = true; // belt-and-braces: some browsers only honour the DOM property, not the JSX attribute
     if (playing && !ended) {
       v.currentTime = 0;
       void v.play().catch(() => {});
@@ -394,14 +395,14 @@ export default function MemoryPlayer({ memoryId, onClose }: MemoryPlayerProps) {
       ) : null}
 
       <div className={s.bottom}>
-        <Button variant="ghostDark" size="sm" className={s.moodBtn} icon={<MusicIcon />} meta="CHANGE" onClick={changeMood}>
+        <Button variant="ghostDark" className={s.moodBtn} icon={<MusicIcon />} meta="CHANGE" onClick={changeMood}>
           {mood.label}
         </Button>
         <div className={s.bottomActions}>
-          <Button variant="ghostDark" size="sm" onClick={togglePlay}>
+          <Button variant="ghostDark" onClick={togglePlay}>
             {playing ? 'Pause' : 'Play'}
           </Button>
-          <Button variant="light" size="sm" icon={<DownloadIcon />} onClick={handleSave}>
+          <Button variant="light" icon={<DownloadIcon />} onClick={handleSave}>
             Save
           </Button>
         </div>

@@ -9,6 +9,14 @@ in their smaller dimension (inline text links excepted).
 
 Run with:  ~/.venvs/playwright/bin/python e2e/c_extras.py
 Env:       FAELLES_URL (default http://127.0.0.1:8498/photos/), FAELLES_PIN
+
+Note: 127.0.0.1:8498 only serves a real page once someone has run a production
+`vite build` of web/ (until then it serves an honest "The app is building"
+placeholder, and every selector below times out). While developing, point
+this at your own Vite dev server instead, which proxies /photos/api/* to the
+shared backend:
+    FAELLES_API=http://127.0.0.1:8498 VITE_CACHE_DIR=node_modules/.vite-c npx vite --port 5182
+    FAELLES_URL=http://127.0.0.1:5182/photos/ ~/.venvs/playwright/bin/python e2e/c_extras.py
 """
 from __future__ import annotations
 
@@ -55,12 +63,18 @@ def check_no_console_errors(errors: list[str], label: str) -> None:
         fail(f"{label}: console errors: {errors}")
 
 
-def check_touch_targets(page, label: str) -> None:
-    """Interactive elements >= 44px in their smaller dimension (inline text links excepted)."""
+def check_touch_targets(page, label: str, scope: str) -> None:
+    """Interactive elements >= 44px in their smaller dimension (inline text links excepted).
+
+    Scoped to the frontend's own containers: the shell chrome (top bar / tab bar)
+    belongs to the frontend and is reviewed there.
+    """
     small = page.evaluate(
         """
-        () => {
-          const els = document.querySelectorAll('button, [role="button"], a[href]');
+        (scope) => {
+          const root = document.querySelector(scope);
+          if (!root) return ['(scope not found: ' + scope + ')'];
+          const els = root.querySelectorAll('button, [role="button"], a[href]');
           const bad = [];
           for (const el of els) {
             const r = el.getBoundingClientRect();
@@ -74,7 +88,8 @@ def check_touch_targets(page, label: str) -> None:
           }
           return bad;
         }
-        """
+        """,
+        scope,
     )
     if small:
         fail(f"{label}: touch targets < 44px: {small}")
@@ -95,7 +110,7 @@ def run_viewport(pw_browser, name: str, viewport: dict) -> None:
     page.wait_for_timeout(400)
     assert_no_horizontal_scroll(page)
     shot(page, "memories-tab")
-    check_touch_targets(page, f"{name}/memories-tab")
+    check_touch_targets(page, f"{name}/memories-tab", 'section[aria-label="Memories"]')
 
     # ---- Memory player: playing, then paused ----
     memory_cards = page.locator('section[aria-label="Memories"] button')
@@ -125,7 +140,7 @@ def run_viewport(pw_browser, name: str, viewport: dict) -> None:
             else:
                 fail(f"{name}: no play/pause button found in memory player")
             assert_no_horizontal_scroll(page)
-            check_touch_targets(page, f"{name}/memory-player")
+            check_touch_targets(page, f"{name}/memory-player", 'div[role="dialog"][aria-label^="Memory"]')
             page.keyboard.press("Escape")
             page.wait_for_timeout(200)
         else:
@@ -140,7 +155,7 @@ def run_viewport(pw_browser, name: str, viewport: dict) -> None:
     page.wait_for_timeout(1500)  # map tile fetch + recolour
     assert_no_horizontal_scroll(page)
     shot(page, "places-tab")
-    check_touch_targets(page, f"{name}/places-tab")
+    check_touch_targets(page, f"{name}/places-tab", 'section[aria-label="Places"]')
 
     # ---- Caption edit ----
     page.get_by_role("button", name="Library", exact=True).first.click()

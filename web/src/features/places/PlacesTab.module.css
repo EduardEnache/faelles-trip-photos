@@ -100,6 +100,7 @@
 .num {
   font-family: var(--font-mono);
   font-size: var(--t-meta);
+  font-variant-numeric: tabular-nums;
   color: var(--eg);
   width: 28px;
   flex: none;

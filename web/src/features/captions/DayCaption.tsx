@@ -71,9 +71,11 @@ export function DayCaption({ day, editable }: DayCaptionProps) {
           ref={inputRef}
           className={s.input}
           type="text"
+          name="dayCaption"
+          autoComplete="off"
           value={draft}
           maxLength={LIMITS.captionMaxChars}
-          placeholder="Add a line about this day"
+          placeholder="Add a line about this day…"
           aria-label="Day caption"
           onChange={(e) => setDraft(e.target.value)}
           onBlur={save}

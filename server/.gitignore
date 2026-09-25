@@ -1,0 +1,4 @@
+# Generated on demand by scripts/seed-dev.mjs (not committed — regenerate
+# locally with `sh scripts/make-seed-assets.sh`, needs Docker if vips/ffmpeg/
+# exiftool aren't on PATH).
+scripts/.seed-assets/

@@ -1,9 +1,19 @@
 services:
   faelles:
     container_name: faelles-dev
-    ports:
+    # distinct tag: the base file's `image: faelles-trip-photos:latest` is the
+    # production (runtime-target) build — sharing that tag with this dev
+    # (dev-target) build would make each `docker compose build` overwrite the
+    # other's image.
+    image: faelles-trip-photos:dev
+    build:
+      target: dev
+    # !override, not merge: without it Compose CONCATENATES ports/volumes
+    # across -f files, which would also publish the base file's 8497 mapping
+    # (clashing with the production container).
+    ports: !override
       - "127.0.0.1:8498:8497"
-    volumes:
+    volumes: !override
       - ./storage-dev:/data
     environment:
       LOG_LEVEL: debug

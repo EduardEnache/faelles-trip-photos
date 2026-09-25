@@ -118,6 +118,21 @@ export function usePendingUploadCount(): number {
   return useUploadQueue((st) => st.entries.filter((e) => ACTIVE_STATUSES.includes(e.status)).length);
 }
 
+export type UploadSheetStage = 'pick' | 'progress' | 'done';
+
+/**
+ * The sheet's stage, purely from the queue: 'pick' with no entries, 'progress'
+ * while anything is still queued/uploading/waiting/needs-file, else 'done'.
+ * Pulled out so it's testable without mounting the component.
+ */
+export function stageOf(entries: readonly QueueEntry[]): UploadSheetStage {
+  if (!entries.length) return 'pick';
+  const active = entries.some(
+    (e) => e.status === 'queued' || e.status === 'uploading' || e.status === 'waiting' || e.status === 'needs-file',
+  );
+  return active ? 'progress' : 'done';
+}
+
 // ── runtime (module-level, outlives React unmounts) ──────────────────────
 
 const liveUploads = new Map<string, TusUpload>();

@@ -82,15 +82,17 @@ def main() -> None:
                 wait_idle(page, 400)
                 expect(page.get_by_text("Not quite.", exact=False)).to_be_visible()
                 shot(page, "b_pin_wrong")
-                wait_idle(page, 500)  # let it clear back to empty dots
+                # let it clear back to empty, editable dots (650ms shake/clear timer)
+                expect(page.get_by_role("status")).to_have_attribute("aria-label", "0 of 4 digits entered", timeout=3000)
 
                 # correct PIN
                 for d in PIN:
                     page.get_by_role("button", name=d, exact=True).click()
+                    page.wait_for_timeout(60)
                 page.wait_for_timeout(600)
 
                 # ── 02 Who's this? ───────────────────────────────────────
-                expect(page.get_by_text("Who’s this?")).to_be_visible()
+                expect(page.get_by_text("Who’s this?")).to_be_visible(timeout=8000)
                 shot(page, "b_who")
                 page.locator("button", has_text="Chris").first.click()
                 page.wait_for_load_state("networkidle")

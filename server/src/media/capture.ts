@@ -116,8 +116,13 @@ function tryCandidate(
     }
   }
   if (requireZone && offsetMin == null) return null;
-  const ms = offsetMin != null ? Date.UTC(parsed.y, parsed.mo - 1, parsed.d, parsed.h, parsed.mi, parsed.s) - offsetMin * 60_000 : null;
-  if (ms == null || !plausible(ms, nowMs)) return null;
+  // Reachable with offsetMin == null only when !requireZone (guarded above):
+  // that's the "treat as UTC" case (video-utc rule and similar).
+  const ms =
+    offsetMin != null
+      ? Date.UTC(parsed.y, parsed.mo - 1, parsed.d, parsed.h, parsed.mi, parsed.s) - offsetMin * 60_000
+      : Date.UTC(parsed.y, parsed.mo - 1, parsed.d, parsed.h, parsed.mi, parsed.s);
+  if (!plausible(ms, nowMs)) return null;
   return { ms, hadZone: offsetMin != null };
 }
 
