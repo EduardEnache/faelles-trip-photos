@@ -60,11 +60,13 @@ export function Hero({ items, wide }: { items: ItemDTO[]; wide: boolean }) {
               {selectMode ? 'Cancel' : 'Select'}
             </button>
           )}
-          <button type="button" className={s.dlAll} disabled={!items.length} onClick={() => void downloadAll()}>
-            <DownloadIcon aria-hidden />
-            {wide ? 'Download all' : 'Save all to Photos'}
-            <span className={s.dlSize}>{formatBytes(stats.totalBytes)}</span>
-          </button>
+          {items.length > 0 && (
+            <button type="button" className={s.dlAll} onClick={() => void downloadAll()}>
+              <DownloadIcon aria-hidden />
+              {wide ? 'Download all' : 'Save all to Photos'}
+              <span className={s.dlSize}>{formatBytes(stats.totalBytes)}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
