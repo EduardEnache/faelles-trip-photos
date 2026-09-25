@@ -55,11 +55,11 @@ function ensureStorageDirs(paths: StoragePaths): void {
 const PLACEHOLDER_HTML = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>fælles.</title>
+<title>Øresund</title>
 <style>body{font:16px/1.5 system-ui,sans-serif;background:#F4F2EE;color:#1D2125;display:flex;
 align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;padding:24px}
 main{max-width:28rem}h1{font-weight:500}</style></head>
-<body><main><h1>fælles.</h1><p>The app is building. The API is up — check back shortly.</p></main></body></html>`;
+<body><main><h1>øresund.</h1><p>The app is building. The API is up — check back shortly.</p></main></body></html>`;
 
 export interface BuiltApp {
   app: FastifyInstance;

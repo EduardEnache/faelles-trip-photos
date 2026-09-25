@@ -210,7 +210,7 @@ export function UploadSheet({ wide }: { wide: boolean }) {
           </div>
         )}
 
-        {stage === 'progress' && <div className={s.hint}>You can close this. Keep fælles open until it&rsquo;s done.</div>}
+        {stage === 'progress' && <div className={s.hint}>You can close this. Keep Øresund open until it&rsquo;s done.</div>}
 
         {stage === 'done' && (
           <div className={s.actions}>
