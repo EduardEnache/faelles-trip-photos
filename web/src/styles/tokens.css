@@ -87,6 +87,7 @@
   --pad-x: 20px; /* 40px when wide */
   --topbar-h: 56px; /* 68px when wide */
   --tabbar-h: 66px; /* + env(safe-area-inset-bottom) */
+  --selbar-h: 132px; /* mobile two-row selection bar, + safe area */
   --grid-gap: 2px; /* 6px when wide */
   --grid-min: 220px; /* wide auto-fill track */
   --touch: 44px; /* min touch target */

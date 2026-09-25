@@ -54,7 +54,13 @@ export function Shell() {
       <TopBar wide={wide} />
       <main
         className={s.main}
-        style={{ paddingBottom: showTabBar ? 'calc(var(--tabbar-h) + env(safe-area-inset-bottom))' : undefined }}
+        style={{
+          paddingBottom: showTabBar
+            ? 'calc(var(--tabbar-h) + env(safe-area-inset-bottom))'
+            : !wide && selectMode
+              ? 'calc(var(--selbar-h) + env(safe-area-inset-bottom))'
+              : undefined,
+        }}
       >
         {route.tab === 'library' && <LibraryTab />}
         <Suspense fallback={null}>

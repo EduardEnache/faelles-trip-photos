@@ -8,8 +8,10 @@
   border-top: 1px solid var(--taage);
   padding: var(--s-3) var(--s-5) calc(14px + env(safe-area-inset-bottom));
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-4);
+  column-gap: var(--s-4);
+  row-gap: var(--s-3);
   animation: rise var(--dur-2) var(--ease);
 }
 
@@ -22,6 +24,7 @@
   border-top: none;
   box-shadow: var(--shadow-float);
   padding: 10px 10px 10px var(--s-6);
+  flex-wrap: nowrap;
 }
 
 .info {
@@ -56,8 +59,34 @@
   padding: 0 4px;
 }
 
-.download {
+/* Phones: its own full-width row under the count, so nothing overlaps. */
+.actions {
+  flex-basis: 100%;
+  display: flex;
+  gap: var(--s-3);
+}
+.wide .actions {
+  flex-basis: auto;
+}
+
+.remove {
   flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  color: var(--dannebrog);
+  display: grid;
+  place-items: center;
+}
+.remove:disabled {
+  color: var(--faint);
+  border-color: var(--taage);
+}
+
+.download {
+  flex: 1;
+  justify-content: center;
   height: 44px;
   padding: 0 var(--s-5);
   border-radius: var(--r-pill);
@@ -68,6 +97,9 @@
   display: flex;
   align-items: center;
   gap: var(--s-2);
+}
+.wide .download {
+  flex: none;
 }
 .download:disabled {
   background: var(--faint);

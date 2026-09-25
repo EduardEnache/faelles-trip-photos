@@ -9,7 +9,9 @@
   background: rgba(244, 242, 238, 0.9);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  padding: 14px 0 12px;
+  /* Full-bleed like the grid below, so tiles scrolling under it are covered edge to edge. */
+  margin: 0 calc(var(--pad-x) * -1);
+  padding: 14px var(--pad-x) 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
