@@ -47,9 +47,7 @@ export function DaySection({
           <div className={s.headTop}>
             {trip && <span className={s.dayNum}>DAY {trip.n}</span>}
             <span className={s.dayTitle}>{trip ? `${trip.wd} ${trip.date}` : sectionTitle(day)}</span>
-            {trip && (
-              <span className={s.place}>{geo ? [geo.city, ...geo.spots].join(' · ') : 'No location data'}</span>
-            )}
+            {trip && geo && <span className={s.place}>{[geo.city, ...geo.spots].join(' · ')}</span>}
             {trip && geo && <span className={s.geoTag} title="Named from photo GPS and timestamps">GPS · {geo.gpsPoints} PTS</span>}
           </div>
           {selectMode ? (

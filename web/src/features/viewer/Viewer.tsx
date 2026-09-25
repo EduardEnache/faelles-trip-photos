@@ -95,7 +95,7 @@ export function Viewer({ itemId, wide }: { itemId: string; wide: boolean }) {
           const poi = nearestPoi(item.lat!, item.lon!);
           return poi ? `${poi.city.toUpperCase()} — ${poi.name}` : formatCoords(item.lat!, item.lon!);
         })()
-      : 'No location data';
+      : null;
 
   const dims = item.width && item.height ? `${item.width}×${item.height}` : null;
   const exifBits = [
@@ -146,7 +146,7 @@ export function Viewer({ itemId, wide }: { itemId: string; wide: boolean }) {
         </IconButton>
         <div className={s.headCenter}>
           <div className={s.dateLine}>{formatDateLine(item.takenAt)}</div>
-          <div className={s.place}>{placeLabel}</div>
+          {placeLabel && <div className={s.place}>{placeLabel}</div>}
         </div>
         <div className={s.counter}>{idx >= 0 ? `${idx + 1} / ${visible.length}` : ''}</div>
       </div>
