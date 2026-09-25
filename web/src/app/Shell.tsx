@@ -3,7 +3,8 @@
  * overlays (viewer, upload, memory player from the slots), toast host.
  */
 import { Suspense, useEffect } from 'react';
-import { closeOverlay, openUpload, useRoute } from '@/lib/router';
+import { closeOverlay, navigateTab, openUpload, useRoute } from '@/lib/router';
+import { useHasPlaces, useLibrary } from '@/state/library';
 import { useWide } from '@/lib/useMedia';
 import { MemoriesTab, MemoryPlayer, PlacesTab } from '@/slots';
 import { useSelection } from '@/features/select/selectionStore';
@@ -46,6 +47,13 @@ export function Shell() {
       window.removeEventListener('drop', onDrop);
     };
   }, [wide]);
+
+  // Places is hidden until some item has GPS; an old /places link lands on the Library.
+  const hasPlaces = useHasPlaces();
+  const libraryReady = useLibrary((st) => st.status === 'ready');
+  useEffect(() => {
+    if (libraryReady && !hasPlaces && route.tab === 'places') navigateTab('library');
+  }, [libraryReady, hasPlaces, route.tab]);
 
   const showTabBar = !wide && !selectMode;
 

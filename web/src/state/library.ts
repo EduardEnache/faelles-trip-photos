@@ -185,3 +185,8 @@ export async function toggleHighlight(item: ItemDTO, me: NonNullable<ItemDTO['up
     throw e;
   }
 }
+
+/** True once any item carries GPS — the Places tab is only shown then. */
+export function useHasPlaces(): boolean {
+  return useLibrary((st) => st.items.some((i) => i.lat != null && i.lon != null));
+}

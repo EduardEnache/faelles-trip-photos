@@ -8,10 +8,12 @@ import { useMe, useSession } from '@/state/session';
 import { personOf } from '@shared/trip';
 import { usePendingUploadCount } from '@/features/upload/uploadQueue';
 import { useSelection } from '@/features/select/selectionStore';
+import { useHasPlaces } from '@/state/library';
 import s from './TopBar.module.css';
 
 export function TopBar({ wide }: { wide: boolean }) {
   const route = useRoute();
+  const hasPlaces = useHasPlaces();
   const me = useMe();
   const albumTitle = useSession((st) => st.albumTitle);
   const startChoosing = useSession((st) => st.startChoosingPerson);
@@ -74,13 +76,15 @@ export function TopBar({ wide }: { wide: boolean }) {
           >
             Memories
           </button>
-          <button
-            type="button"
-            className={[s.tab, route.tab === 'places' && s.active].filter(Boolean).join(' ')}
-            onClick={() => navigateTab('places')}
-          >
-            Places
-          </button>
+          {hasPlaces && (
+            <button
+              type="button"
+              className={[s.tab, route.tab === 'places' && s.active].filter(Boolean).join(' ')}
+              onClick={() => navigateTab('places')}
+            >
+              Places
+            </button>
+          )}
         </div>
         <div className={s.right}>
           <button type="button" className={s.who} title="Switch person" onClick={startChoosing}>
