@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+storage
+storage-dev
+.git
+e2e
+notes
+design
+*.md
+!README.md
+server/test/.tmp

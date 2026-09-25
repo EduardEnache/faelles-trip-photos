@@ -1,0 +1,213 @@
+/* fælles. base/reset + utility classes + shared keyframes. SCAFFOLD-OWNED. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--kalk);
+  color: var(--blaek);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 100dvh;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+img,
+video,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+a {
+  color: var(--fjord);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--blaek);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+  font-weight: 500;
+}
+p {
+  font-weight: 400;
+}
+
+/* Focus: visible for keyboard, invisible for touch/mouse. */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  box-shadow: var(--focus-ring);
+  border-radius: inherit;
+}
+.on-dark :focus-visible,
+:focus-visible.on-dark {
+  box-shadow: var(--focus-ring-dark);
+}
+
+/* Hide scrollbars on horizontal chip rails only (not globally: desktop users need them). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── utilities ─────────────────────────────────────────── */
+
+/* Everything a camera wrote: dates, times, filenames, sizes, durations. */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Meta: 11 mono +8% uppercase. */
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  letter-spacing: var(--ls-meta);
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* ── keyframes (from the prototype) ────────────────────── */
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+/* Ken Burns, alternating per slide. Duration is set per slide by the player. */
+@keyframes kb0 {
+  0% {
+    transform: scale(1.02) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.14) translate(-2%, -1.5%);
+  }
+}
+@keyframes kb1 {
+  0% {
+    transform: scale(1.14) translate(2%, 1%);
+  }
+  100% {
+    transform: scale(1.03) translate(0, 0);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,111 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--touch);
+  padding: 0 var(--s-5);
+  border-radius: var(--r-pill);
+  font-size: var(--t-label);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.sm {
+  min-height: 36px;
+  padding: 0 var(--s-4);
+}
+.lg {
+  min-height: 48px;
+  font-size: 15px;
+}
+.block {
+  width: 100%;
+}
+
+/* One filled action per view. */
+.primary {
+  background: var(--fjord);
+  color: var(--papir);
+}
+.primary:hover:not(:disabled) {
+  background: var(--fjord-hover);
+}
+.primary:disabled {
+  background: var(--faint);
+}
+
+/* Secondary: outlined. */
+.secondary {
+  border: 1px solid var(--line-strong);
+  color: var(--blaek);
+}
+.secondary:hover:not(:disabled) {
+  border-color: var(--blaek);
+}
+
+/* Tertiary: text only, Fjord. Keeps a 44px hit area. */
+.text {
+  padding: 0 var(--s-2);
+  color: var(--fjord);
+}
+.text:hover:not(:disabled) {
+  color: var(--blaek);
+}
+
+/* Active/inverted (e.g. "Cancel" while selecting). */
+.ink {
+  background: var(--blaek);
+  color: var(--kalk);
+}
+
+/* On dark surfaces (viewer, player). */
+.light {
+  background: var(--on-dark);
+  color: var(--nat);
+}
+.light:hover:not(:disabled) {
+  background: var(--papir);
+}
+.ghostDark {
+  border: 1px solid var(--on-dark-line);
+  color: var(--on-dark);
+}
+.ghostDark:hover:not(:disabled) {
+  background: var(--on-dark-soft);
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.icon {
+  width: var(--touch);
+  min-width: var(--touch);
+  padding: 0;
+}
+.iconSoft {
+  background: var(--soft);
+  color: var(--blaek);
+}
+.iconSoft:hover {
+  background: var(--hover);
+}
+.iconDark {
+  background: var(--on-dark-soft);
+  color: var(--on-dark);
+}
+.iconDark:hover {
+  background: var(--on-dark-line);
+}
+.iconPlain {
+  color: inherit;
+}

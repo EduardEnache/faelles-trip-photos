@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdn.jsdelivr.net/npm/exifr@7/dist/full.umd.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F4F2EE;color:#1D2125;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+a{color:#2E4A5E;text-decoration:none}a:hover{color:#1D2125}
+button{font:inherit;color:inherit;white-space:nowrap}
+::-webkit-scrollbar{width:0;height:0}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+@keyframes kb0{0%{opacity:0;transform:scale(1.02) translate(0,0)}14%{opacity:1}100%{opacity:1;transform:scale(1.14) translate(-2%,-1.5%)}}
+@keyframes kb1{0%{opacity:0;transform:scale(1.14) translate(2%,1%)}14%{opacity:1}100%{opacity:1;transform:scale(1.03) translate(0,0)}}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#F4F2EE;font-family:'Instrument Sans',system-ui,sans-serif;color:#1D2125">
+
+<sc-if value="{{ isPin }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="PIN" style="min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;padding:24px 24px 28px">
+  <div style="display:flex;justify-content:space-between;align-items:center;width:100%;max-width:440px;margin:0 auto">
+    <div style="font-weight:500;font-size:21px;letter-spacing:-0.03em">fælles<span style="color:#B23A36">.</span></div>
+    <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.08em;color:#6F6D68">PRIVATE ALBUM</div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;padding:24px 0">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.1em;color:#6F6D68">DENMARK · 25–28 SEPTEMBER 2026</div>
+      <div style="font-size:40px;line-height:1.05;font-weight:500;letter-spacing:-0.035em">Velkommen.</div>
+      <div style="font-size:16px;line-height:1.5;color:#6F6D68;max-width:260px;text-wrap:pretty">Enter the four-digit code from the group chat.</div>
+    </div>
+    <div style="display:flex;gap:12px;animation:{{ shakeAnim }}">
+      <sc-for list="{{ pinDots }}" as="d" hint-placeholder-count="4">
+        <div style="width:54px;height:66px;border-radius:16px;border:1px solid {{ d.border }};background:{{ d.bg }};display:grid;place-items:center;transition:all .2s">
+          <div style="width:10px;height:10px;border-radius:50%;background:#1D2125;opacity:{{ d.op }};transform:scale({{ d.sc }});transition:all .2s cubic-bezier(.2,.7,.2,1)"></div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="height:20px;font-size:14px;color:#B23A36">{{ pinMsg }}</div>
+    <div style="display:grid;grid-template-columns:repeat(3,76px);gap:10px 26px">
+      <sc-for list="{{ keys }}" as="k" hint-placeholder-count="12">
+        <button onClick="{{ k.onClick }}" style="width:76px;height:76px;border-radius:50%;border:none;background:transparent;cursor:pointer;font-size:{{ k.size }};font-weight:400;color:#1D2125;opacity:{{ k.op }};transition:background .15s" style-hover="background:#E9E6E0" style-active="background:#DEDAD2">{{ k.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+  <div style="text-align:center;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.06em;color:#6F6D68">SHARED BY LINK · NO ACCOUNTS</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isWho }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Who" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:32px;animation:fade .4s">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+    <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.1em;color:#6F6D68">ONE LAST THING</div>
+    <div style="font-size:40px;line-height:1.05;font-weight:500;letter-spacing:-0.035em">Who's this?</div>
+    <div style="font-size:16px;line-height:1.5;color:#6F6D68;max-width:290px;text-wrap:pretty">Your name goes on everything you upload and every heart you give.</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,150px));gap:12px;width:100%;justify-content:center">
+    <sc-for list="{{ whoList }}" as="p" hint-placeholder-count="4">
+      <button onClick="{{ p.onClick }}" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:22px 12px;border-radius:20px;border:1px solid {{ p.border }};background:#FBFAF8;cursor:pointer;transition:all .2s" style-hover="border-color:#1D2125;transform:translateY(-2px)">
+        <div style="width:56px;height:56px;border-radius:50%;background:{{ p.color }};color:#FBFAF8;display:grid;place-items:center;font-size:22px;font-weight:500">{{ p.initial }}</div>
+        <div style="font-size:17px;font-weight:500">{{ p.name }}</div>
+      </button>
+    </sc-for>
+  </div>
+  <div style="font-size:13px;color:#6F6D68">Remembered on this device. Change it anytime.</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="App" style="min-height:100vh;padding-bottom:{{ bottomPad }}">
+
+  <sc-if value="{{ wide }}" hint-placeholder-val="{{ false }}">
+  <div style="position:sticky;top:0;z-index:20;height:68px;background:rgba(244,242,238,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid #E6E3DD">
+    <div style="max-width:1400px;margin:0 auto;height:100%;padding:0 40px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <div style="font-weight:500;font-size:21px;letter-spacing:-0.03em">fælles<span style="color:#B23A36">.</span></div>
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.08em;color:#6F6D68">DENMARK 2026</div>
+      </div>
+      <div style="display:flex;gap:32px;height:68px">
+        <button onClick="{{ goLibrary }}" style="border:none;background:none;cursor:pointer;font-size:15px;font-weight:500;color:{{ tLib }};border-bottom:1.5px solid {{ tLibLine }};padding:0 2px">Library</button>
+        <button onClick="{{ goMemories }}" style="border:none;background:none;cursor:pointer;font-size:15px;font-weight:500;color:{{ tMem }};border-bottom:1.5px solid {{ tMemLine }};padding:0 2px">Memories</button>
+        <button onClick="{{ goPlaces }}" style="border:none;background:none;cursor:pointer;font-size:15px;font-weight:500;color:{{ tPla }};border-bottom:1.5px solid {{ tPlaLine }};padding:0 2px">Places</button>
+      </div>
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:14px">
+        <button onClick="{{ switchUser }}" title="Switch person" style="display:flex;align-items:center;gap:8px;border:none;background:none;cursor:pointer;font-size:14px;color:#6F6D68;padding:0">
+          <div style="width:30px;height:30px;border-radius:50%;background:{{ meColor }};color:#FBFAF8;display:grid;place-items:center;font-size:13px;font-weight:500">{{ meInitial }}</div>{{ meName }}
+        </button>
+        <button onClick="{{ openUpload }}" style="height:40px;padding:0 20px;border-radius:999px;border:none;background:#2E4A5E;color:#FBFAF8;font-size:14px;font-weight:500;cursor:pointer;transition:background .2s" style-hover="background:#243C4D">Upload</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ narrow }}" hint-placeholder-val="{{ true }}">
+  <div style="position:sticky;top:0;z-index:20;height:56px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:rgba(244,242,238,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)">
+    <div style="font-weight:500;font-size:20px;letter-spacing:-0.03em">fælles<span style="color:#B23A36">.</span></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ toggleSelect }}" style="border:none;background:{{ selBtnBg }};color:{{ selBtnFg }};height:32px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer">{{ selBtnLabel }}</button>
+      </sc-if>
+      <button onClick="{{ switchUser }}" style="width:32px;height:32px;border-radius:50%;border:none;background:{{ meColor }};color:#FBFAF8;font-size:13px;font-weight:500;cursor:pointer">{{ meInitial }}</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Library" style="max-width:1400px;margin:0 auto;padding:0 {{ padX }}">
+    <div style="padding:{{ heroPad }};display:flex;flex-direction:column;gap:10px">
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.1em;color:#6F6D68">25–28 SEPTEMBER 2026 · 4 DAYS · 3 PLACES</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:{{ h1Size }};line-height:1;font-weight:500;letter-spacing:-0.04em">Denmark</div>
+          <div style="font-size:16px;color:#6F6D68">{{ summary }}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <sc-if value="{{ wide }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ toggleSelect }}" style="height:38px;padding:0 16px;border-radius:999px;border:1px solid {{ selBtnBorder }};background:{{ selBtnBg }};color:{{ selBtnFg }};font-size:14px;font-weight:500;cursor:pointer" style-hover="border-color:#1D2125">{{ selBtnLabel }}</button>
+          </sc-if>
+          <button onClick="{{ downloadAll }}" style="height:38px;padding:0 16px;border-radius:999px;border:1px solid #D6D2CA;background:transparent;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px" style-hover="border-color:#1D2125">{{ dlAllLabel }}<span style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#6F6D68">{{ totalSize }}</span></button>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ showMemoryCard }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ playFeatured }}" style="position:relative;height:{{ featH }};border-radius:{{ featRadius }};overflow:hidden;cursor:pointer;margin:0 0 24px;background:#9DB4BF">
+      <div style="position:absolute;inset:0;background:{{ featBg }};transition:transform 1.2s cubic-bezier(.2,.7,.2,1)" style-hover="transform:scale(1.03)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(17,20,22,.62),rgba(17,20,22,0) 62%)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;padding:22px 22px 20px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;color:#FBFAF8">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.1em">NEW MEMORY · {{ featLen }}</div>
+          <div style="font-size:{{ featTitle }};line-height:1.05;font-weight:500;letter-spacing:-0.03em">Four days in Denmark</div>
+          <div style="font-size:14px">{{ featSub }}</div>
+        </div>
+        <div style="flex:none;width:52px;height:52px;border-radius:50%;background:#FBFAF8;display:grid;place-items:center">
+          <svg width="18" height="18" viewBox="0 0 18 18"><polygon points="5,3 15,9 5,15" fill="#1D2125"></polygon></svg>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <div style="display:flex;gap:8px;overflow-x:auto;margin:0 {{ bleed }};padding:0 {{ padXInner }} 8px">
+      <sc-for list="{{ chips }}" as="c" hint-placeholder-count="7">
+        <button onClick="{{ c.onClick }}" style="flex:none;height:36px;padding:0 14px 0 {{ c.padL }};border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s">
+          <sc-if value="{{ c.person }}" hint-placeholder-val="{{ false }}"><span style="width:24px;height:24px;border-radius:50%;background:{{ c.color }};color:#FBFAF8;display:grid;place-items:center;font-size:11px">{{ c.initial }}</span></sc-if>
+          {{ c.label }}<span style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;opacity:.6">{{ c.count }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <sc-for list="{{ days }}" as="day" hint-placeholder-count="2">
+      <div id="{{ day.anchor }}" style="margin-top:14px">
+        <div style="position:sticky;top:{{ stickyTop }};z-index:5;background:rgba(244,242,238,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:14px 0 12px;display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <div style="display:flex;align-items:baseline;gap:12px;min-width:0;flex-wrap:wrap">
+            <span style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.1em;color:#A97E57">DAY {{ day.n }}</span>
+            <span style="font-size:19px;font-weight:500;letter-spacing:-0.02em">{{ day.wd }} {{ day.date }}</span>
+            <span style="font-size:14px;color:#6F6D68">{{ day.place }} · {{ day.spot }}</span>
+            <span title="Named from photo GPS and timestamps" style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;color:#8C8A84;white-space:nowrap;border:1px solid #E0DCD5;border-radius:999px;padding:2px 7px">{{ day.geoTag }}</span>
+          </div>
+          <sc-if value="{{ day.showSelectDay }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ day.selectDay }}" style="flex:none;border:none;background:none;cursor:pointer;font-size:14px;font-weight:500;color:#2E4A5E;padding:0">{{ day.selectLabel }}</button>
+          </sc-if>
+          <sc-if value="{{ day.showCount }}" hint-placeholder-val="{{ true }}">
+            <span style="flex:none;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#6F6D68">{{ day.count }}</span>
+          </sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:{{ gridCols }};gap:{{ gridGap }};margin:0 {{ bleed }}">
+          <sc-for list="{{ day.items }}" as="item" hint-placeholder-count="9">
+            <div onClick="{{ item.onClick }}" onPointerDown="{{ item.onDown }}" onPointerUp="{{ item.onUp }}" onPointerLeave="{{ item.onUp }}" onContextMenu="{{ item.onCtx }}" style="position:relative;aspect-ratio:1;cursor:pointer;overflow:hidden;border-radius:{{ item.radius }};background:{{ item.under }};user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">
+              <div style="position:absolute;inset:0;background:{{ item.bg }};transform:scale({{ item.scale }});border-radius:{{ item.innerRadius }};transition:transform .28s cubic-bezier(.2,.7,.2,1),filter .2s" style-hover="filter:brightness(1.05)"></div>
+              <sc-if value="{{ item.isVideo }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;right:8px;bottom:7px;display:flex;align-items:center;gap:5px;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#FBFAF8;text-shadow:0 1px 3px rgba(0,0,0,.45)"><svg width="8" height="9" viewBox="0 0 8 9"><polygon points="0,0 8,4.5 0,9" fill="#FBFAF8"></polygon></svg>{{ item.dur }}</div>
+              </sc-if>
+              <sc-if value="{{ item.fav }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;left:8px;bottom:6px;font-size:12px;color:#FBFAF8;text-shadow:0 1px 3px rgba(0,0,0,.45)">★</div>
+              </sc-if>
+              <sc-if value="{{ item.showCheck }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:50%;border:1.5px solid #FBFAF8;background:{{ item.checkBg }};display:grid;place-items:center;color:#FBFAF8;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.2)">{{ item.checkMark }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:80px 0;text-align:center;color:#6F6D68;font-size:16px">Nothing here yet.</div>
+    </sc-if>
+    <div style="padding:48px 0 32px;text-align:center;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.08em;color:#A9A69F">{{ footer }}</div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isMemories }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Memories" style="max-width:1400px;margin:0 auto;padding:0 {{ padX }} 32px">
+    <div style="padding:{{ heroPad }};display:flex;flex-direction:column;gap:10px">
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.1em;color:#6F6D68">MADE FOR YOU · UPDATED AFTER EACH UPLOAD</div>
+      <div style="font-size:{{ h1Size }};line-height:1;font-weight:500;letter-spacing:-0.04em">Memories</div>
+      <div style="font-size:16px;line-height:1.5;color:#6F6D68;max-width:520px;text-wrap:pretty">Short films assembled from your photos and clips, set to royalty-free music. Tap one to watch, change the song, or save it as a video.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+      <sc-for list="{{ mems }}" as="m" hint-placeholder-count="4">
+        <div onClick="{{ m.onClick }}" style="position:relative;aspect-ratio:4/5;border-radius:20px;overflow:hidden;cursor:pointer;background:#9DB4BF">
+          <div style="position:absolute;inset:0;background:{{ m.bg }};transition:transform 1.2s cubic-bezier(.2,.7,.2,1)" style-hover="transform:scale(1.04)"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(17,20,22,.6),rgba(17,20,22,0) 55%)"></div>
+          <div style="position:absolute;top:14px;left:14px;height:26px;padding:0 10px;border-radius:999px;background:rgba(251,250,248,.9);display:flex;align-items:center;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#1D2125">{{ m.len }}</div>
+          <div style="position:absolute;left:18px;right:18px;bottom:18px;display:flex;flex-direction:column;gap:6px;color:#FBFAF8">
+            <div style="font-size:24px;line-height:1.08;font-weight:500;letter-spacing:-0.025em">{{ m.title }}</div>
+            <div style="font-size:14px">{{ m.sub }}</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.04em;margin-top:4px">♪ {{ m.track }} · {{ m.mood }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isPlaces }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Places" style="max-width:1400px;margin:0 auto;padding:0 {{ padX }} 32px">
+    <div style="padding:{{ heroPad }};display:flex;flex-direction:column;gap:10px">
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.1em;color:#6F6D68">FROM PHOTO LOCATION DATA</div>
+      <div style="font-size:{{ h1Size }};line-height:1;font-weight:500;letter-spacing:-0.04em">Places</div>
+    </div>
+    <div style="height:{{ mapH }};border-radius:20px;background:repeating-linear-gradient(135deg,#E9E6E0 0 10px,#EFEDE8 10px 20px);display:grid;place-items:center;margin-bottom:12px">
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;color:#6F6D68;text-align:center;line-height:1.7;padding:0 20px">MAP OF DENMARK<br>pins clustered from EXIF GPS · muted Nordic basemap</div>
+    </div>
+    <sc-for list="{{ places }}" as="pl" hint-placeholder-count="5">
+      <div onClick="{{ pl.onClick }}" style="display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid #E6E3DD;cursor:pointer" style-hover="opacity:.75">
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#A97E57;width:28px">{{ pl.num }}</div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:20px;font-weight:500;letter-spacing:-0.02em">{{ pl.name }}</div>
+          <div style="font-size:14px;color:#6F6D68">{{ pl.meta }}</div>
+        </div>
+        <div style="display:flex;gap:3px">
+          <sc-for list="{{ pl.thumbs }}" as="t" hint-placeholder-count="3">
+            <div style="width:{{ thumbSize }};height:{{ thumbSize }};border-radius:6px;background:{{ t.bg }}"></div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ showTabBar }}" hint-placeholder-val="{{ true }}">
+  <div style="position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(251,250,248,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid #E6E3DD;padding:8px 12px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);align-items:center">
+    <button onClick="{{ goLibrary }}" style="border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ tLib }};font-size:11px;font-weight:500;padding:4px 0">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="7" height="7" rx="1.5"></rect><rect x="12.5" y="2.5" width="7" height="7" rx="1.5"></rect><rect x="2.5" y="12.5" width="7" height="7" rx="1.5"></rect><rect x="12.5" y="12.5" width="7" height="7" rx="1.5"></rect></svg>Library</button>
+    <button onClick="{{ goMemories }}" style="border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ tMem }};font-size:11px;font-weight:500;padding:4px 0">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8.5" stroke="currentColor" stroke-width="1.5"></circle><polygon points="9,7.5 14.5,11 9,14.5" fill="currentColor"></polygon></svg>Memories</button>
+    <button onClick="{{ goPlaces }}" style="border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ tPla }};font-size:11px;font-weight:500;padding:4px 0">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8.5" stroke="currentColor" stroke-width="1.5"></circle><circle cx="11" cy="11" r="2.5" fill="currentColor"></circle></svg>Places</button>
+    <div style="display:flex;justify-content:center">
+      <button onClick="{{ openUpload }}" style="width:48px;height:48px;border-radius:50%;border:none;background:#2E4A5E;cursor:pointer;display:grid;place-items:center;box-shadow:0 6px 18px rgba(46,74,94,.28)" style-active="transform:scale(.94)">
+        <svg width="20" height="20" viewBox="0 0 20 20"><rect x="9.25" y="3" width="1.5" height="14" rx=".75" fill="#FBFAF8"></rect><rect x="3" y="9.25" width="14" height="1.5" rx=".75" fill="#FBFAF8"></rect></svg>
+      </button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ selectMode }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;z-index:35;left:{{ sb.left }};right:{{ sb.right }};bottom:{{ sb.bottom }};transform:{{ sb.transform }};border-radius:{{ sb.radius }};background:#FBFAF8;border-top:1px solid #E6E3DD;box-shadow:{{ sb.shadow }};padding:{{ sb.pad }};display:flex;align-items:center;gap:16px;animation:rise .3s cubic-bezier(.2,.7,.2,1)">
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:15px;font-weight:500;white-space:nowrap">{{ selCountLabel }}</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#6F6D68;white-space:nowrap">{{ selSizeLabel }}</div>
+    </div>
+    <button onClick="{{ selectAll }}" style="flex:none;border:none;background:none;cursor:pointer;font-size:14px;font-weight:500;color:#2E4A5E;padding:0 4px">{{ selAllLabel }}</button>
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ toggleSelect }}" style="flex:none;border:none;background:none;cursor:pointer;font-size:14px;font-weight:500;color:#6F6D68;padding:0 4px">Cancel</button>
+    </sc-if>
+    <button onClick="{{ downloadSelected }}" style="flex:none;height:44px;padding:0 20px;border-radius:999px;border:none;background:{{ dlBg }};color:#FBFAF8;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px">↓ {{ dlLabel }}</button>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasViewer }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Viewer" style="position:fixed;inset:0;z-index:50;background:#0E1113;color:#EDEBE7;display:flex;flex-direction:column;animation:fade .25s">
+  <div style="height:64px;flex:none;display:grid;grid-template-columns:1fr minmax(0,auto) 1fr;align-items:center;gap:12px;padding:0 16px">
+    <button onClick="{{ closeViewer }}" style="justify-self:start;width:40px;height:40px;border-radius:50%;border:none;background:rgba(237,235,231,.08);color:#EDEBE7;font-size:22px;line-height:1;cursor:pointer" style-hover="background:rgba(237,235,231,.16)">×</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;min-width:0;max-width:60vw">
+      <div style="font-size:15px;font-weight:500;white-space:nowrap">{{ v.dateLine }}</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.04em;color:#A9A69F;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ v.place }}</div>
+    </div>
+    <div style="justify-self:end;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#A9A69F">{{ v.counter }}</div>
+  </div>
+  <div onPointerDown="{{ vDown }}" onPointerUp="{{ vUp }}" style="flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;touch-action:pan-y">
+    <div style="position:relative;width:{{ v.mw }};height:{{ v.mh }};background:{{ v.bg }};border-radius:4px;transition:width .3s,height .3s">
+      <sc-if value="{{ v.isVideo }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;display:grid;place-items:center">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(14,17,19,.45);backdrop-filter:blur(8px);display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="6,3 17,10 6,17" fill="#FBFAF8"></polygon></svg></div>
+        </div>
+        <div style="position:absolute;left:14px;right:14px;bottom:12px;display:flex;align-items:center;gap:10px;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#FBFAF8">0:00<div style="flex:1;height:2px;background:rgba(251,250,248,.35);border-radius:2px"></div>{{ v.dur }}</div>
+      </sc-if>
+    </div>
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ prev }}" style="position:absolute;left:28px;top:50%;margin-top:-24px;width:48px;height:48px;border-radius:50%;border:1px solid rgba(237,235,231,.18);background:transparent;color:#EDEBE7;font-size:18px;cursor:pointer;opacity:{{ v.prevOp }}" style-hover="background:rgba(237,235,231,.08)">←</button>
+      <button onClick="{{ next }}" style="position:absolute;right:28px;top:50%;margin-top:-24px;width:48px;height:48px;border-radius:50%;border:1px solid rgba(237,235,231,.18);background:transparent;color:#EDEBE7;font-size:18px;cursor:pointer;opacity:{{ v.nextOp }}" style-hover="background:rgba(237,235,231,.08)">→</button>
+    </sc-if>
+  </div>
+  <div style="flex:none;padding:16px 20px calc(18px + env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 20px;max-width:1100px;width:100%;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:12px;min-width:0">
+      <div style="width:34px;height:34px;border-radius:50%;background:{{ v.upColor }};color:#FBFAF8;display:grid;place-items:center;font-size:14px;font-weight:500;flex:none">{{ v.upInitial }}</div>
+      <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+        <div style="font-size:15px;font-weight:500">{{ v.upName }}</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#A9A69F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ v.fileLine }}</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#8C8A84;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ v.exifLine }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onClick="{{ toggleLike }}" style="height:40px;padding:0 14px 0 12px;border-radius:999px;border:1px solid rgba(237,235,231,.16);background:{{ v.likeBg }};color:{{ v.likeFg }};font-size:15px;cursor:pointer;display:flex;align-items:center;gap:8px">
+        <span style="font-size:17px">{{ v.heart }}</span>
+        <span style="display:flex">
+          <sc-for list="{{ v.likers }}" as="l" hint-placeholder-count="2">
+            <span style="width:20px;height:20px;margin-left:-5px;border-radius:50%;border:1.5px solid #0E1113;background:{{ l.color }};color:#FBFAF8;display:grid;place-items:center;font-size:9px;font-weight:600">{{ l.initial }}</span>
+          </sc-for>
+        </span>
+      </button>
+      <button onClick="{{ toggleFav }}" title="Highlight" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(237,235,231,.16);background:transparent;color:{{ v.favFg }};font-size:16px;cursor:pointer">{{ v.star }}</button>
+      <button onClick="{{ downloadOne }}" style="height:40px;padding:0 16px;border-radius:999px;border:none;background:#EDEBE7;color:#0E1113;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px" style-hover="background:#FBFAF8">↓ {{ v.saveLabel }}<span style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#4A4D50">{{ v.size }}</span></button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasUpload }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Upload" onClick="{{ closeUploadBg }}" style="position:fixed;inset:0;z-index:60;background:rgba(17,20,22,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:{{ sheetAlign }};justify-content:center;animation:fade .2s">
+  <div onClick="{{ stop }}" style="width:100%;max-width:520px;max-height:92vh;overflow:auto;background:#FBFAF8;border-radius:{{ sheetRadius }};padding:24px 24px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:20px;animation:rise .35s cubic-bezier(.2,.7,.2,1)">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:22px;font-weight:500;letter-spacing:-0.025em">{{ up.title }}</div>
+      <button onClick="{{ closeUpload }}" style="width:36px;height:36px;border-radius:50%;border:none;background:#EFEDE8;font-size:20px;line-height:1;cursor:pointer">×</button>
+    </div>
+
+    <sc-if value="{{ up.isPick }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#6F6D68">
+        <div style="width:26px;height:26px;border-radius:50%;background:{{ meColor }};color:#FBFAF8;display:grid;place-items:center;font-size:11px;font-weight:500">{{ meInitial }}</div>
+        <span>Uploading as <span style="color:#1D2125;font-weight:500">{{ meName }}</span></span>
+        <button onClick="{{ switchUser }}" style="border:none;background:none;cursor:pointer;color:#2E4A5E;font-size:14px;font-weight:500;padding:0">Change</button>
+      </div>
+      <label onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:44px 20px;border-radius:20px;border:1.5px dashed {{ dropBorder }};background:{{ dropBg }};cursor:pointer;text-align:center;transition:all .2s" style-hover="border-color:#2E4A5E">
+        <input type="file" multiple="" accept="image/*,video/*" onChange="{{ onFiles }}" style="display:none">
+        <div style="width:56px;height:56px;border-radius:50%;background:#2E4A5E;display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 20 20"><rect x="9.25" y="3" width="1.5" height="14" rx=".75" fill="#FBFAF8"></rect><rect x="3" y="9.25" width="14" height="1.5" rx=".75" fill="#FBFAF8"></rect></svg></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:18px;font-weight:500">{{ dropTitle }}</div>
+          <div style="font-size:14px;color:#6F6D68">{{ dropSub }}</div>
+        </div>
+      </label>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center">
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;line-height:1.6;color:#6F6D68">HEIC · JPG · RAW · MOV · MP4 — ORIGINALS, NEVER COMPRESSED</div>
+        <div style="font-size:13px;line-height:1.5;color:#6F6D68;max-width:340px">Date, time, camera and location are read from each file and used to sort it into the right day.</div>
+        <button onClick="{{ useSamples }}" style="border:none;background:none;cursor:pointer;color:#2E4A5E;font-size:14px;font-weight:500;padding:6px">No files handy? Try 8 sample files</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ up.isProg }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:84px;line-height:.9;font-weight:400;letter-spacing:-0.05em;font-variant-numeric:tabular-nums">{{ up.pct }}<span style="font-size:36px;color:#A9A69F">%</span></div>
+        <div style="height:3px;border-radius:3px;background:#E6E3DD;overflow:hidden"><div style="height:100%;width:{{ up.pctW }};background:#2E4A5E;transition:width .15s linear"></div></div>
+        <div style="display:flex;justify-content:space-between;gap:12px;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#6F6D68"><span>{{ up.line }}</span><span>{{ up.eta }}</span></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ up.isDone }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:10px;padding:6px 0">
+        <div style="width:56px;height:56px;border-radius:50%;background:#2E4A5E;color:#FBFAF8;display:grid;place-items:center;font-size:24px;animation:rise .4s">✓</div>
+        <div style="font-size:28px;font-weight:500;letter-spacing:-0.03em">{{ up.doneTitle }}</div>
+        <div style="font-size:15px;line-height:1.5;color:#6F6D68">Full resolution, attributed to {{ meName }}. {{ up.sortedLine }}</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ up.hasFiles }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;max-height:260px;overflow:auto;border-top:1px solid #E6E3DD">
+        <sc-for list="{{ up.files }}" as="f" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #EFEDE8">
+            <div style="width:40px;height:40px;border-radius:8px;flex:none;background:{{ f.bg }}"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;gap:8px;font-size:14px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#6F6D68;flex:none">{{ f.size }}</span></div>
+              <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#6F6D68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.meta }}</div>
+              <div style="height:2px;border-radius:2px;background:#EFEDE8;overflow:hidden"><div style="height:100%;width:{{ f.w }};background:{{ f.barColor }};transition:width .15s linear"></div></div>
+            </div>
+            <div style="width:34px;text-align:right;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:{{ f.stColor }};flex:none">{{ f.status }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ up.isProg }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13px;color:#6F6D68;text-align:center">You can close this — uploads keep going in the background.</div>
+    </sc-if>
+    <sc-if value="{{ up.isDone }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:10px">
+        <button onClick="{{ viewUploaded }}" style="flex:1;height:48px;border-radius:999px;border:none;background:#2E4A5E;color:#FBFAF8;font-size:15px;font-weight:500;cursor:pointer">View in library</button>
+        <button onClick="{{ addMore }}" style="flex:1;height:48px;border-radius:999px;border:1px solid #D6D2CA;background:transparent;font-size:15px;font-weight:500;cursor:pointer">Add more</button>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasMemory }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Memory player" style="position:fixed;inset:0;z-index:70;background:#0E1113;overflow:hidden;color:#FBFAF8;animation:fade .3s">
+  <div style="position:absolute;inset:0">{{ slidePrev }}{{ slideEl }}</div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,17,19,.45),rgba(14,17,19,0) 22%,rgba(14,17,19,0) 55%,rgba(14,17,19,.6))"></div>
+  <div style="position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr">
+    <div onClick="{{ memPrev }}" style="cursor:w-resize"></div>
+    <div onClick="{{ memNext }}" style="cursor:e-resize"></div>
+  </div>
+  <div style="position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;flex-direction:column;gap:14px;max-width:1100px;margin:0 auto">
+    <div style="display:flex;gap:4px">
+      <sc-for list="{{ mp.segs }}" as="s" hint-placeholder-count="8">
+        <div style="flex:1;height:2px;border-radius:2px;background:rgba(251,250,248,.3);overflow:hidden"><div style="height:100%;width:{{ s.w }};background:#FBFAF8"></div></div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:15px;font-weight:500">{{ mp.title }}</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.04em">{{ mp.slideMeta }}</div>
+      </div>
+      <button onClick="{{ closeMemory }}" style="width:40px;height:40px;border-radius:50%;border:none;background:rgba(251,250,248,.16);color:#FBFAF8;font-size:22px;line-height:1;cursor:pointer;backdrop-filter:blur(8px)">×</button>
+    </div>
+  </div>
+  <sc-if value="{{ mp.showTitle }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:0 24px;display:flex;flex-direction:column;gap:12px;pointer-events:none;animation:rise .8s cubic-bezier(.2,.7,.2,1)">
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;letter-spacing:.14em">25–28 SEPTEMBER 2026</div>
+      <div style="font-size:{{ mpTitleSize }};line-height:1;font-weight:500;letter-spacing:-0.04em;text-shadow:0 2px 24px rgba(0,0,0,.25)">{{ mp.title }}</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ mp.ended }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:rgba(14,17,19,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;animation:fade .4s">
+      <div style="font-size:32px;font-weight:500;letter-spacing:-0.03em">Tak for turen.</div>
+      <div style="display:flex;gap:10px">
+        <button onClick="{{ memReplay }}" style="height:44px;padding:0 20px;border-radius:999px;border:1px solid rgba(251,250,248,.4);background:transparent;color:#FBFAF8;font-size:14px;font-weight:500;cursor:pointer">Replay</button>
+        <button onClick="{{ memSave }}" style="height:44px;padding:0 20px;border-radius:999px;border:none;background:#FBFAF8;color:#0E1113;font-size:14px;font-weight:500;cursor:pointer">Save video · 1080p</button>
+      </div>
+    </div>
+  </sc-if>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:1100px;margin:0 auto">
+    <button onClick="{{ memShuffle }}" style="min-width:0;height:40px;padding:0 14px;border-radius:999px;border:none;background:rgba(251,250,248,.16);backdrop-filter:blur(10px);color:#FBFAF8;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden">♪ {{ mp.track }}<span style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;opacity:.8">CHANGE</span></button>
+    <div style="display:flex;gap:8px;flex:none">
+      <button onClick="{{ memToggle }}" style="height:40px;padding:0 16px;border-radius:999px;border:none;background:rgba(251,250,248,.16);backdrop-filter:blur(10px);color:#FBFAF8;font-size:13px;font-weight:500;cursor:pointer">{{ mp.playLabel }}</button>
+      <button onClick="{{ memSave }}" style="height:40px;padding:0 16px;border-radius:999px;border:none;background:#FBFAF8;color:#0E1113;font-size:13px;font-weight:500;cursor:pointer">↓ Save</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;z-index:90;left:50%;bottom:{{ toastBottom }};transform:translateX(-50%);width:calc(100% - 32px);max-width:400px;background:#1D2125;color:#F4F2EE;border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 40px rgba(17,20,22,.28);animation:rise .3s cubic-bezier(.2,.7,.2,1)">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+    <div style="font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ toast.title }}</div>
+    <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#A9A69F;flex:none">{{ toast.pct }}</div>
+  </div>
+  <div style="height:2px;border-radius:2px;background:rgba(244,242,238,.16);overflow:hidden"><div style="height:100%;width:{{ toast.w }};background:{{ toast.bar }};transition:width .15s linear"></div></div>
+  <div style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;color:#A9A69F">{{ toast.sub }}</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;comfortable&quot;,&quot;compact&quot;],&quot;default&quot;:&quot;comfortable&quot;,&quot;tsType&quot;:&quot;'comfortable'|'compact'&quot;},&quot;showMemoryCard&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;albumName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Denmark 2026&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const PEOPLE=[{id:'alex',name:'Alex',color:'#2E4A5E'},{id:'sam',name:'Sam',color:'#A97E57'},{id:'chris',name:'Chris',color:'#5E7F72'},{id:'edi',name:'Edi',color:'#B23A36'}];
+const P=Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
+const DAYS_2025=[
+ {n:1,wd:'Sat',date:'12 July',place:'København',spot:'Nyhavn · Christianshavn',tones:[['#8FA9B6','#E4DACB'],['#C7563F','#EAD9C3'],['#3E5A6B','#A9B9BF'],['#D8C7A8','#8A9DA3']]},
+ {n:2,wd:'Sun',date:'13 July',place:'København',spot:'Tivoli · Superkilen',tones:[['#2B3A4A','#C98B5A'],['#E3B77A','#5B4B5E'],['#7E9A8C','#E6E0D2'],['#B2413A','#2E3440']]},
+ {n:3,wd:'Mon',date:'14 July',place:'Humlebæk',spot:'Louisiana Museum',tones:[['#A7B8A0','#EEE9DF'],['#5F7D6A','#CFD8CF'],['#9CB3C3','#F1EDE6'],['#D9D2C4','#6D7F74']]},
+ {n:4,wd:'Tue',date:'15 July',place:'Helsingør',spot:'Kronborg · Øresund',tones:[['#6B8797','#D4D6D2'],['#8A7560','#CFC3B1'],['#4F6B7C','#BCC8CC'],['#A39E93','#E7E3DB']]},
+ {n:5,wd:'Wed',date:'16 July',place:'Aarhus',spot:'ARoS · Latinerkvarteret',tones:[['#C9A15F','#7B94A6'],['#B4553F','#E2C9A2'],['#6C8FA8','#E9E0CF'],['#3C4450','#C07A56']]},
+ {n:6,wd:'Thu',date:'17 July',place:'Skagen',spot:'Grenen · Råbjerg Mile',tones:[['#E7DCC4','#94B2C0'],['#D6B98C','#6E8EA0'],['#F0E6D2','#B7C9CF'],['#E4A067','#5D7485']]}];
+const DAYS=[
+ {n:1,wd:'Fri',date:'25 Sept',y:2026,m:8,d:25,place:'København',spot:'Nyhavn · Christianshavn',lat:55.6798,lon:12.5911,tones:[['#8FA9B6','#E4DACB'],['#C7563F','#EAD9C3'],['#3E5A6B','#A9B9BF'],['#D8C7A8','#8A9DA3']]},
+ {n:2,wd:'Sat',date:'26 Sept',y:2026,m:8,d:26,place:'København',spot:'Tivoli · Superkilen',lat:55.6737,lon:12.5681,tones:[['#2B3A4A','#C98B5A'],['#E3B77A','#5B4B5E'],['#7E9A8C','#E6E0D2'],['#B2413A','#2E3440']]},
+ {n:3,wd:'Sun',date:'27 Sept',y:2026,m:8,d:27,place:'Humlebæk',spot:'Louisiana Museum',lat:55.9690,lon:12.5429,tones:[['#A7B8A0','#EEE9DF'],['#5F7D6A','#CFD8CF'],['#9CB3C3','#F1EDE6'],['#D9D2C4','#6D7F74']]},
+ {n:4,wd:'Mon',date:'28 Sept',y:2026,m:8,d:28,place:'Helsingør',spot:'Kronborg · Øresund',lat:56.0391,lon:12.6216,tones:[['#6B8797','#D4D6D2'],['#8A7560','#CFC3B1'],['#4F6B7C','#BCC8CC'],['#A39E93','#E7E3DB']]}];
+const CAMS={alex:{name:'iPhone 16 Pro',lens:'24mm',f:'1.78'},sam:{name:'Pixel 9 Pro',lens:'25mm',f:'1.68'},chris:{name:'iPhone 15',lens:'26mm',f:'1.6'},edi:{name:'Sony α7C II',lens:'35mm',f:'2.8'}};
+const POIS=[
+ {name:'Nyhavn',city:'København',lat:55.6798,lon:12.5911},{name:'Christianshavn',city:'København',lat:55.6736,lon:12.5941},
+ {name:'Tivoli',city:'København',lat:55.6737,lon:12.5681},{name:'Superkilen',city:'København',lat:55.7005,lon:12.5418},
+ {name:'Louisiana Museum',city:'Humlebæk',lat:55.9690,lon:12.5429},{name:'Humlebæk Havn',city:'Humlebæk',lat:55.9622,lon:12.5390},
+ {name:'Kronborg',city:'Helsingør',lat:56.0390,lon:12.6212},{name:'Kulturværftet',city:'Helsingør',lat:56.0367,lon:12.6160}];
+const DAY_POIS=[[0,1],[2,3],[4,5],[6,7]];
+function nearestPoi(lat,lon){let b=null,bd=1e9;POIS.forEach(p=>{const d=(p.lat-lat)**2+((p.lon-lon)*0.56)**2;if(d<bd){bd=d;b=p;}});return bd<0.0004?b:null;}
+function deriveDay(its){const c={};let n=0;its.forEach(i=>{if(i.lat==null)return;const p=nearestPoi(i.lat,i.lon);if(!p)return;n++;if(!c[p.name])c[p.name]={p,n:0,first:i.time};c[p.name].n++;});
+ const arr=Object.values(c);if(!arr.length)return null;const top=[...arr].sort((a,b)=>b.n-a.n)[0];arr.sort((a,b)=>a.first<b.first?-1:1);
+ return {place:top.p.city,spot:arr.slice(0,2).map(x=>x.p.name).join(' · '),n};}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
+function dayOf(d){const i=DAYS.findIndex(x=>x.y===d.getFullYear()&&x.m===d.getMonth()&&x.d===d.getDate());return i>=0?i+1:(d<new Date(2026,8,25)?1:DAYS.length);}
+function placeOf(lat,lon){let b=null,bd=1e9;DAYS.forEach(x=>{const dd=(x.lat-lat)**2+(x.lon-lon)**2;if(dd<bd){bd=dd;b=x;}});return bd<0.05?b.place:null;}
+async function readMeta(file){const m={date:new Date(file.lastModified),src:'file date'};
+ try{if(window.exifr){const x=await window.exifr.parse(file,{tiff:true,exif:true,gps:true,xmp:false});
+  if(x){if(x.DateTimeOriginal||x.CreateDate){m.date=new Date(x.DateTimeOriginal||x.CreateDate);m.src='EXIF';}
+   if(x.Model)m.cam=(x.Make&&!String(x.Model).startsWith(x.Make)?x.Make+' ':'')+x.Model;
+   if(x.FNumber)m.fn=String(x.FNumber);if(x.ExposureTime)m.exp=x.ExposureTime>=1?x.ExposureTime+'s':'1/'+Math.round(1/x.ExposureTime);
+   if(x.ISO)m.iso=x.ISO;if(x.FocalLengthIn35mmFormat||x.FocalLength)m.lens=Math.round(x.FocalLengthIn35mmFormat||x.FocalLength)+'mm';
+   if(typeof x.latitude==='number'){m.lat=x.latitude;m.lon=x.longitude;}
+   const w=x.ExifImageWidth||x.ImageWidth,h=x.ExifImageHeight||x.ImageHeight;if(w&&h)m.dims=w+'×'+h;}}}catch(e){}
+ return m;}
+function applyMeta(it,m){if(!m)return it;const d=m.date;const o={...it,day:dayOf(d),time:pad2(d.getHours())+':'+pad2(d.getMinutes()),metaSrc:m.src};['cam','fn','exp','iso','lens','lat','lon','dims'].forEach(k=>{if(m[k]!=null)o[k]=m[k];});return o;}
+function metaShort(m){if(!m)return 'Reading metadata…';const d=m.date;const pl=m.lat!=null?(placeOf(m.lat,m.lon)||m.lat.toFixed(3)+'°, '+m.lon.toFixed(3)+'°'):'no location';return `${d.getDate()} ${MON[d.getMonth()]} · ${pad2(d.getHours())}:${pad2(d.getMinutes())} · ${m.cam||'unknown camera'} · ${pl}`;}
+const SLIDE=3200;
+const MEMS=[
+ {id:'trip',title:'Four days in Denmark',sub:'The whole trip',track:'Kystlys',tracks:['Kystlys','Sommerlys','Havbrise'],mood:'Ambient piano',pick:a=>a.filter((x,i)=>x.fav||i%8===0).slice(0,10)},
+ {id:'kronborg',title:'Across the Øresund',sub:'Day 4 · Helsingør',track:'Nordvest',tracks:['Nordvest','Sund','Kronborg'],mood:'Warm acoustic',pick:a=>a.filter(x=>x.day===4).slice(0,8)},
+ {id:'cph',title:'First nights in København',sub:'Days 1–2',track:'Havnen',tracks:['Havnen','Tivoli Nat','Brosten'],mood:'Soft electronic',pick:a=>a.filter(x=>x.day<=2).filter((x,i)=>i%2===0).slice(0,8)},
+ {id:'four',title:'The four of us',sub:'Most-loved moments',track:'Lys',tracks:['Lys','Fællesskab','Hjem'],mood:'Strings',pick:a=>[...a].sort((x,y)=>y.likes.length-x.likes.length).slice(0,8)}];
+function rng(seed){let s=seed;return()=>{s=(s*16807)%2147483647;return (s-1)/2147483646;};}
+const pad2=n=>String(n).padStart(2,'0');
+function gen(){const r=rng(11);const items=[];let img=4012;
+ DAYS.forEach((d,di)=>{const count=[15,14,12,13][di];let hour=9,min=Math.floor(r()*40);
+  for(let i=0;i<count;i++){const video=r()<0.17;const ar=video?(r()<.6?[16,9]:[9,16]):(r()<.65?[3,4]:(r()<.6?[4,3]:[1,1]));
+   min+=15+Math.floor(r()*45);while(min>=60){min-=60;hour++;}
+   const mb=video?40+r()*180:2.4+r()*4;
+   items.push({id:'m'+d.n+'-'+i,day:d.n,kind:video?'video':'photo',dur:video?'0:'+pad2(5+Math.floor(r()*40)):null,uploader:PEOPLE[Math.floor(r()*4)].id,fav:r()<.17,likes:PEOPLE.filter(()=>r()<.32).map(p=>p.id),time:pad2(Math.min(hour,22))+':'+pad2(min),mb,file:(video?'VID_':'IMG_')+(img++)+(video?'.MOV':'.HEIC'),ar,tone:d.tones[Math.floor(r()*4)],angle:130+Math.floor(r()*100),url:null});}});
+ items.forEach((it,k)=>{const d=DAYS[it.day-1],c=CAMS[it.uploader];it.cam=c.name;it.lens=c.lens;it.fn=c.f;it.exp=['1/60','1/125','1/250','1/500','1/1000'][k%5];it.iso=[50,64,100,200,400][(k*3)%5];const dayIts=items.filter(x=>x.day===it.day),pi=DAY_POIS[it.day-1][dayIts.indexOf(it)<dayIts.length*0.55?0:1],po=POIS[pi];it.lat=po.lat+((k*37%100)-50)/25000;it.lon=po.lon+((k*53%100)-50)/15000;it.metaSrc='EXIF';});
+ return items;}
+function sampleFiles(){return [['IMG_5120.HEIC',3.8],['IMG_5121.HEIC',4.1],['IMG_5124.HEIC',3.2],['VID_5125.MOV',84],['IMG_5127.HEIC',4.6],['IMG_5130.DNG',24.8],['IMG_5131.HEIC',3.9],['VID_5133.MOV',132]].map(([name,mb],i)=>({id:'s'+i+'-'+Math.random().toString(36).slice(2,6),name,mb,kind:name.startsWith('VID')?'video':'photo',url:null,tone:DAYS[3].tones[i%4],p:0,meta:{date:new Date(2026,8,28,11,4+i*6),src:'EXIF',cam:'iPhone 16 Pro',fn:'1.78',exp:'1/250',iso:64,lens:'24mm',lat:56.0391,lon:12.6216,dims:name.startsWith('VID')?'3840×2160':'4032×3024'}}));}
+const bgOf=it=>{const g=`linear-gradient(${it.angle||160}deg, ${it.tone[0]}, ${it.tone[1]})`;return it.url?`url("${it.url}") center/cover no-repeat, ${g}`:g;};
+const fmt=mb=>mb>=1000?(mb/1000).toFixed(1)+' GB':mb.toFixed(mb<10?1:0)+' MB';
+function initState(){
+ const h=(location.hash||'').slice(1);let me=null;try{me=localStorage.getItem('faelles_me');}catch(e){}
+ const s={screen:'pin',pin:'',pinError:false,me:(me&&P[me])?me:'alex',tab:'library',filter:'all',selectMode:false,selected:[],viewer:null,upload:null,toast:null,memory:null,drag:false,items:gen(),w:window.innerWidth,h:window.innerHeight,trackIdx:0};
+ if(h&&h!=='pin')s.screen='app';
+ if(h==='who')s.screen='who';
+ if(h==='select'||h==='download'){s.selectMode=true;s.selected=['m1-1','m1-3','m1-4'];}
+ if(h==='viewer')s.viewer='m3-2';
+ if(h==='video'){const v=s.items.find(i=>i.kind==='video'&&i.ar[0]>i.ar[1]);s.viewer=v&&v.id;}
+ if(h==='upload')s.upload={stage:'pick',files:[]};
+ if(h==='uploading')s.upload={stage:'progress',files:sampleFiles().map((f,i)=>({...f,p:i<3?1:(i<5?0.5:0)}))};
+ if(h==='done')s.upload={stage:'done',files:sampleFiles().map(f=>({...f,p:1}))};
+ if(h==='memories')s.tab='memories';
+ if(h==='memory')s.memory={id:'trip',t:1700,paused:true,seek:1700,seekSlide:0};
+ if(h==='places')s.tab='places';
+ return s;}
+
+class Component extends DCLogic {
+  state=initState();
+  componentDidMount(){
+    this.onResize=()=>this.setState({w:window.innerWidth,h:window.innerHeight});
+    window.addEventListener('resize',this.onResize);
+    this.onKey=e=>this.key(e);window.addEventListener('keydown',this.onKey);
+    this.tick=setInterval(()=>this.memTick(),100);
+    if(this.state.upload&&this.state.upload.stage==='progress')this.runSim();
+    if(location.hash==='#download')setTimeout(()=>this.startZip(3,14.2,'denmark-2025-selection.zip',true),300);
+  }
+  componentWillUnmount(){window.removeEventListener('resize',this.onResize);window.removeEventListener('keydown',this.onKey);clearInterval(this.tick);clearInterval(this.sim);clearInterval(this.zipT);}
+  key(e){const s=this.state;
+    if(s.screen==='pin'){if(/^[0-9]$/.test(e.key))this.press(e.key);else if(e.key==='Backspace')this.press('del');return;}
+    if(s.memory){if(e.key==='Escape')this.setState({memory:null});if(e.key===' '){e.preventDefault();this.memToggle();}if(e.key==='ArrowRight')this.memJump(1);if(e.key==='ArrowLeft')this.memJump(-1);return;}
+    if(s.viewer){if(e.key==='ArrowRight')this.nav(1);if(e.key==='ArrowLeft')this.nav(-1);if(e.key==='Escape')this.setState({viewer:null});return;}
+    if(s.upload&&e.key==='Escape')this.setState({upload:null});
+    if(s.selectMode&&e.key==='Escape')this.setState({selectMode:false,selected:[]});
+  }
+  press(k){const s=this.state;if(s.pinError)return;
+    if(k==='del'){this.setState({pin:s.pin.slice(0,-1)});return;}
+    if(s.pin.length>=4)return;const pin=s.pin+k;this.setState({pin});
+    if(pin.length===4)setTimeout(()=>{
+      if(pin==='1234'){let known=null;try{known=localStorage.getItem('faelles_me');}catch(e){}this.setState({screen:known?'app':'who',pin:''});}
+      else{this.setState({pinError:true});setTimeout(()=>this.setState({pinError:false,pin:''}),650);}
+    },220);}
+  pickMe(id){try{localStorage.setItem('faelles_me',id);}catch(e){}this.setState({me:id,screen:'app'});}
+  visible(){const {items,filter}=this.state;return items.filter(i=>filter==='all'||(filter==='fav'&&i.fav)||(filter==='video'&&i.kind==='video')||i.uploader===filter);}
+  nav(d){const vis=this.visible();const i=vis.findIndex(x=>x.id===this.state.viewer);const n=i+d;if(n>=0&&n<vis.length)this.setState({viewer:vis[n].id});}
+  toggleSel(id){this.setState(s=>({selected:s.selected.includes(id)?s.selected.filter(x=>x!==id):[...s.selected,id]}));}
+  mutate(id,fn){this.setState(s=>({items:s.items.map(i=>i.id===id?fn(i):i)}));}
+  album(){return this.props.albumName??'Denmark 2026';}
+  startAlbum(count,mb,keep){clearInterval(this.zipT);const al=this.album();
+    this.setState({toast:{title:'Saving to Photos',sub:`Album “${al}” · ${count} original${count>1?'s':''} · ${fmt(mb)}`,p:0}});
+    this.zipT=setInterval(()=>this.setState(s=>{if(!s.toast)return null;const p=Math.min(1,s.toast.p+0.06+Math.random()*0.05);
+      if(p>=1){clearInterval(this.zipT);if(!keep)setTimeout(()=>this.setState({toast:null}),3400);return {toast:{title:`Saved to Photos › ${al}`,sub:`${count} original${count>1?'s':''} · full resolution · dates & GPS kept`,p:1,done:true}};}
+      return {toast:{...s.toast,p}};}),140);}
+  startZip(count,mb,name,keep){if(this.state.w<900)return this.startAlbum(count,mb,keep);clearInterval(this.zipT);
+    this.setState({toast:{title:`Packing ${name}`,sub:`${count} originals · ${fmt(mb)} · full resolution`,p:0}});
+    this.zipT=setInterval(()=>this.setState(s=>{if(!s.toast)return null;const p=Math.min(1,s.toast.p+0.05+Math.random()*0.05);
+      if(p>=1){clearInterval(this.zipT);if(!keep)setTimeout(()=>this.setState({toast:null}),3400);return {toast:{title:`${name} is ready`,sub:`Saved to Downloads · ${count} originals · ${fmt(mb)}`,p:1,done:true}};}
+      return {toast:{...s.toast,p}};}),140);}
+  startSingle(it){if(this.state.w<900)return this.startAlbum(1,it.mb);clearInterval(this.zipT);this.setState({toast:{title:`Saving ${it.file}`,sub:`Original · ${fmt(it.mb)} · untouched metadata`,p:0}});
+    this.zipT=setInterval(()=>this.setState(s=>{if(!s.toast)return null;const p=Math.min(1,s.toast.p+0.18);if(p>=1){clearInterval(this.zipT);setTimeout(()=>this.setState({toast:null}),2600);return {toast:{...s.toast,title:`${it.file} saved`,p:1,done:true}};}return {toast:{...s.toast,p}};}),120);}
+  startUpload(files){this.setState({upload:{stage:'progress',files}});this.runSim();}
+  runSim(){clearInterval(this.sim);this.sim=setInterval(()=>this.setState(s=>{
+    if(!s.upload||s.upload.stage!=='progress')return null;let active=0;
+    const files=s.upload.files.map(f=>{if(f.p>=1||active>=3){return f;}active++;const m=Math.min(f.mb,200);return {...f,p:Math.min(1,f.p+(6/(m+6))*0.34*(0.6+Math.random()))};});
+    if(files.every(f=>f.p>=1)){clearInterval(this.sim);const d=new Date();let t=d.getHours()*60+d.getMinutes();
+      const add=files.map((f,i)=>applyMeta({id:f.id,day:DAYS.length,kind:f.kind,dur:f.kind==='video'?'0:12':null,uploader:s.me,fav:false,likes:[],time:pad2(Math.floor(((t+i)/60)%24))+':'+pad2((t+i)%60),mb:f.mb,file:f.name,ar:f.kind==='video'?[16,9]:[3,4],tone:f.tone,angle:160,url:f.url,cam:null},f.meta));
+      return {upload:{stage:'done',files},items:[...s.items,...add]};}
+    return {upload:{...s.upload,files}};}),120);}
+  onFiles(list){const fl=[...list];if(!fl.length)return;
+    const files=fl.map((f,i)=>({id:'f'+Date.now()+i,name:f.name,mb:Math.max(0.2,f.size/1e6),kind:f.type.startsWith('video')?'video':'photo',url:f.type.startsWith('image')?URL.createObjectURL(f):null,tone:DAYS[3].tones[i%4],p:0,meta:null}));
+    this.startUpload(files);
+    fl.forEach((raw,i)=>readMeta(raw).then(meta=>this.setState(s=>({upload:s.upload?{...s.upload,files:s.upload.files.map(x=>x.id===files[i].id?{...x,meta}:x)}:s.upload,items:s.items.map(it=>it.id===files[i].id?applyMeta(it,meta):it)}))));}
+  memSlides(id){const m=MEMS.find(x=>x.id===id);return m.pick(this.state.items);}
+  memTick(){const m=this.state.memory;if(!m||m.paused)return;const total=this.memSlides(m.id).length*SLIDE;const t=m.t+100;
+    if(t>=total)this.setState({memory:{...m,t:total-1,paused:true,ended:true}});else this.setState({memory:{...m,t}});}
+  openMemory(id){this.setState({memory:{id,t:0,paused:false,seek:0,seekSlide:-1},trackIdx:0});}
+  memToggle(){const m=this.state.memory;if(!m)return;if(m.ended){this.openMemory(m.id);return;}this.setState({memory:{...m,paused:!m.paused}});}
+  memJump(d){const m=this.state.memory;if(!m)return;const n=this.memSlides(m.id).length;const idx=Math.max(0,Math.min(n-1,Math.floor(m.t/SLIDE)+d));this.setState({memory:{...m,t:idx*SLIDE,ended:false,paused:false,seek:0,seekSlide:-1}});}
+
+  renderVals(){
+    const s=this.state,wide=s.w>=900,me=P[s.me]||P.alex;const compact=(this.props.density??'comfortable')==='compact';
+    const setTab=tab=>()=>{this.setState({tab,selectMode:false,selected:[]});window.scrollTo(0,0);};
+    const vis=this.visible();
+    const tileR=wide?'6px':'0';
+    const days=DAYS.map(d=>{const its=vis.filter(i=>i.day===d.n);if(!its.length)return null;
+      const allSel=its.every(i=>s.selected.includes(i.id));
+      const geo=deriveDay(s.items.filter(i=>i.day===d.n));
+      return {...d,place:geo?geo.place:d.place,spot:geo?geo.spot:'Location unknown',geoTag:geo?`GPS · ${geo.n} PTS`:'',anchor:'day-'+d.n,count:its.length+'',showSelectDay:s.selectMode,showCount:!s.selectMode,selectLabel:allSel?'Deselect':'Select day',
+        selectDay:()=>this.setState(st=>({selected:allSel?st.selected.filter(x=>!its.some(i=>i.id===x)):[...new Set([...st.selected,...its.map(i=>i.id)])]})),
+        items:its.map(it=>{const checked=s.selected.includes(it.id);return {
+          id:it.id,bg:bgOf(it),isVideo:it.kind==='video',dur:it.dur,fav:it.fav,showCheck:s.selectMode,checkMark:checked?'✓':'',
+          checkBg:checked?'#2E4A5E':'rgba(14,17,19,.12)',scale:checked?(wide?0.9:0.86):1,radius:tileR,innerRadius:checked?'6px':tileR,under:checked?'#E6E3DD':'#E6E3DD',
+          onClick:()=>{if(this.lp){this.lp=false;return;}if(this.state.selectMode)this.toggleSel(it.id);else this.setState({viewer:it.id});},
+          onDown:()=>{clearTimeout(this.lpT);this.lpT=setTimeout(()=>{this.lp=true;if(!this.state.selectMode)this.setState({selectMode:true,selected:[it.id]});else this.toggleSel(it.id);},480);},
+          onUp:()=>clearTimeout(this.lpT),onCtx:e=>e.preventDefault()};})};}).filter(Boolean);
+    const photos=s.items.filter(i=>i.kind==='photo').length,videos=s.items.length-photos;
+    const totalMb=s.items.reduce((a,i)=>a+i.mb,0);
+    const chipDefs=[{key:'all',label:'All',count:s.items.length},{key:'fav',label:'Highlights',count:s.items.filter(i=>i.fav).length},{key:'video',label:'Videos',count:videos},
+      ...PEOPLE.map(p=>({key:p.id,label:p.name,count:s.items.filter(i=>i.uploader===p.id).length,person:true,color:p.color,initial:p.name[0]}))];
+    const chips=chipDefs.map(c=>{const a=s.filter===c.key;return {...c,count:c.count+'',bg:a?'#1D2125':'transparent',fg:a?'#F4F2EE':'#1D2125',border:a?'#1D2125':'#D6D2CA',padL:c.person?'6px':'14px',person:!!c.person,
+      onClick:()=>this.setState({filter:a&&c.key!=='all'?'all':c.key})};});
+    const trip=MEMS[0],tripSlides=this.memSlides('trip');
+    const selItems=s.items.filter(i=>s.selected.includes(i.id)),selMb=selItems.reduce((a,i)=>a+i.mb,0),n=selItems.length;
+    // viewer
+    let v={};const cur=s.viewer&&s.items.find(i=>i.id===s.viewer);
+    if(cur){const idx=vis.findIndex(x=>x.id===cur.id);const d=DAYS[cur.day-1];const aw=wide?s.w-240:s.w,ah=s.h-(wide?190:230);
+      const r=cur.ar[0]/cur.ar[1];let mw=aw,mh=aw/r;if(mh>ah){mh=ah;mw=ah*r;}
+      const liked=cur.likes.includes(s.me);const upr=P[cur.uploader]||me;
+      const dims=cur.kind==='video'?(cur.ar[0]>cur.ar[1]?'3840×2160 · 4K':'2160×3840 · 4K'):(cur.ar[0]===cur.ar[1]?'3024×3024':cur.ar[0]>cur.ar[1]?'4032×3024':'3024×4032');
+      v={dateLine:`${d.wd} ${d.date} · ${cur.time}`,place:(()=>{const p=cur.lat!=null&&nearestPoi(cur.lat,cur.lon);return p?`${p.city.toUpperCase()} — ${p.name}`:'LOCATION UNKNOWN';})(),saveLabel:wide?'Original':'Save to Photos',counter:`${idx+1} / ${vis.length}`,mw:Math.round(mw)+'px',mh:Math.round(mh)+'px',bg:bgOf(cur),
+        isVideo:cur.kind==='video',dur:cur.dur,prevOp:idx>0?1:.25,nextOp:idx<vis.length-1?1:.25,upColor:upr.color,upInitial:upr.name[0],upName:'Uploaded by '+upr.name,
+        fileLine:`${cur.cam||'Unknown camera'} · ${cur.dims||dims}`,
+        exifLine:[cur.file,cur.fn&&'ƒ/'+cur.fn,cur.exp&&cur.exp+'s',cur.iso&&'ISO '+cur.iso,cur.lens,cur.lat!=null&&`${cur.lat.toFixed(4)}° N ${cur.lon.toFixed(4)}° E`,cur.metaSrc==='file date'&&'date from file'].filter(Boolean).join(' · '),heart:liked?'♥\uFE0E':'♡\uFE0E',likeBg:liked?'rgba(178,58,54,.16)':'transparent',likeFg:liked?'#E07A74':'#EDEBE7',
+        likers:cur.likes.map(id=>({color:P[id].color,initial:P[id].name[0]})),star:cur.fav?'★':'☆',favFg:cur.fav?'#D9B48A':'#EDEBE7',size:fmt(cur.mb)};}
+    // upload
+    let up={};if(s.upload){const fs=s.upload.files,tot=fs.reduce((a,f)=>a+f.mb,0),sent=fs.reduce((a,f)=>a+f.mb*f.p,0),dn=fs.filter(f=>f.p>=1).length;const pct=tot?Math.floor(sent/tot*100):0;
+      up={isPick:s.upload.stage==='pick',isProg:s.upload.stage==='progress',isDone:s.upload.stage==='done',hasFiles:fs.length>0,
+        title:s.upload.stage==='pick'?'Add to the album':s.upload.stage==='progress'?'Uploading originals':'All done',
+        pct:pct+'',pctW:pct+'%',line:`${Math.min(dn+1,fs.length)} of ${fs.length} · ${fmt(sent)} of ${fmt(tot)}`,eta:`~${Math.max(1,Math.ceil((tot-sent)/28))}s left`,
+        doneTitle:`${fs.length} ${fs.length===1?'original':'originals'} added`,
+        sortedLine:(()=>{const ds=[...new Set(fs.filter(f=>f.meta).map(f=>dayOf(f.meta.date)))].sort();return ds.length?`Sorted into ${ds.map(n=>'Day '+n).join(' & ')} by capture date, with camera and location read from each file.`:'Reading dates and locations from each file…';})(),
+        files:fs.map(f=>({name:f.name,meta:metaShort(f.meta),size:fmt(f.mb),bg:bgOf({...f,angle:160}),w:Math.round(f.p*100)+'%',barColor:f.p>=1?'#5E7F72':'#2E4A5E',status:f.p>=1?'✓':f.p>0?Math.round(f.p*100)+'%':'—',stColor:f.p>=1?'#5E7F72':'#6F6D68'}))};}
+    // memory
+    let mp={segs:[]},slideEl=null,slidePrev=null;if(s.memory){const m=MEMS.find(x=>x.id===s.memory.id),sl=this.memSlides(m.id),i=Math.min(sl.length-1,Math.floor(s.memory.t/SLIDE));const it=sl[i],d=DAYS[it.day-1];
+      const tracks=m.tracks;const delay=s.memory.seekSlide===i?-s.memory.seek:0;
+      slideEl=React.createElement('div',{key:m.id+i,style:{position:'absolute',inset:'-5%',background:bgOf(it),animation:`kb${i%2} ${SLIDE+400}ms linear forwards`,animationDelay:delay+'ms',animationPlayState:s.memory.paused?'paused':'running'}});
+      if(i>0){const p=sl[i-1];slidePrev=React.createElement('div',{key:'p'+m.id+(i-1),style:{position:'absolute',inset:'-5%',background:bgOf(p),transform:(i-1)%2?'scale(1.03)':'scale(1.14) translate(-2%,-1.5%)'}});}
+      mp={title:m.title,slideMeta:`DAY ${it.day} · ${d.place.toUpperCase()} · ${it.time}`,track:`${tracks[s.trackIdx%tracks.length]} · royalty-free`,playLabel:s.memory.paused?'Play':'Pause',
+        showTitle:i===0&&!s.memory.ended,ended:!!s.memory.ended,segs:sl.map((x,j)=>({w:j<i?'100%':j>i?'0%':Math.round((s.memory.t-i*SLIDE)/SLIDE*100)+'%'}))};}
+    const t=s.toast;
+    const placeGroups=[['København',[1,2]],['Humlebæk',[3]],['Helsingør',[4]]];
+    return {
+      isPin:s.screen==='pin',isWho:s.screen==='who',isApp:s.screen==='app',wide,narrow:!wide,
+      shakeAnim:s.pinError?'shake .45s':'none',pinMsg:s.pinError?'Not quite. Try again.':'',
+      pinDots:[0,1,2,3].map(i=>{const f=i<s.pin.length;return {border:s.pinError?'#B23A36':(i===s.pin.length?'#1D2125':'#D6D2CA'),bg:f?'#FBFAF8':'transparent',op:f?1:0,sc:f?1:.3};}),
+      keys:['1','2','3','4','5','6','7','8','9','','0','del'].map(k=>({label:k==='del'?'Delete':k,size:k==='del'?'14px':'28px',op:k===''?0:1,onClick:()=>k&&this.press(k)})),
+      whoList:PEOPLE.map(p=>({...p,initial:p.name[0],border:p.id===s.me?'#1D2125':'#E6E3DD',onClick:()=>this.pickMe(p.id)})),
+      meName:me.name,meInitial:me.name[0],meColor:me.color,switchUser:()=>this.setState({screen:'who',upload:null}),
+      isLibrary:s.tab==='library',isMemories:s.tab==='memories',isPlaces:s.tab==='places',
+      goLibrary:setTab('library'),goMemories:setTab('memories'),goPlaces:setTab('places'),
+      tLib:s.tab==='library'?'#1D2125':'#8C8A84',tMem:s.tab==='memories'?'#1D2125':'#8C8A84',tPla:s.tab==='places'?'#1D2125':'#8C8A84',
+      tLibLine:s.tab==='library'?'#1D2125':'transparent',tMemLine:s.tab==='memories'?'#1D2125':'transparent',tPlaLine:s.tab==='places'?'#1D2125':'transparent',
+      padX:wide?'40px':'20px',bleed:wide?'0':'-20px',padXInner:wide?'0':'20px',heroPad:wide?'48px 0 32px':'20px 0 22px',h1Size:wide?'72px':'48px',
+      stickyTop:wide?'68px':'56px',bottomPad:wide?'0':'100px',
+      gridCols:wide?`repeat(auto-fill,minmax(${compact?160:220}px,1fr))`:`repeat(${compact?4:3},1fr)`,gridGap:wide?'6px':'2px',
+      summary:`Four of us, ${photos} photos and ${videos} videos.`,totalSize:fmt(totalMb),footer:`${s.items.length} ORIGINALS · ${fmt(totalMb)} · STORED AT HOME`,
+      showMemoryCard:this.props.showMemoryCard??true,featBg:bgOf(tripSlides[0]||s.items[0]),featLen:'0:'+pad2(Math.round(tripSlides.length*SLIDE/1000)),featSub:`${tripSlides.length} moments · ♪ ${trip.track}`,
+      featH:wide?'340px':'230px',featRadius:wide?'20px':'18px',featTitle:wide?'40px':'28px',playFeatured:()=>this.openMemory('trip'),
+      chips,days,empty:days.length===0,
+      selectMode:s.selectMode,toggleSelect:()=>this.setState(st=>({selectMode:!st.selectMode,selected:[]})),
+      selBtnLabel:s.selectMode?'Cancel':'Select',selBtnBg:s.selectMode?'#1D2125':(wide?'transparent':'#E9E6E0'),selBtnFg:s.selectMode?'#F4F2EE':'#1D2125',selBtnBorder:s.selectMode?'#1D2125':'#D6D2CA',
+      showTabBar:!wide&&!s.selectMode,
+      sb:wide?{left:'50%',right:'auto',bottom:'28px',transform:'translateX(-50%)',radius:'999px',shadow:'0 12px 40px rgba(17,20,22,.16)',pad:'10px 10px 10px 24px'}:{left:'0',right:'0',bottom:'0',transform:'none',radius:'0',shadow:'none',pad:'12px 20px calc(14px + env(safe-area-inset-bottom))'},
+      selCountLabel:n?`${n} selected`:'Tap to select',selSizeLabel:n?`${fmt(selMb)} · original quality`:'or long-press any photo',
+      selAllLabel:n===vis.length&&n?'Deselect all':'Select all',dlLabel:wide?(n>1?`Download ${n} as ZIP`:'Download'):(n>1?`Save ${n} to Photos`:'Save to Photos'),dlAllLabel:wide?'Download all':'Save all to Photos',dlBg:n?'#2E4A5E':'#A9A69F',
+      selectAll:()=>this.setState(st=>({selected:st.selected.length===vis.length?[]:vis.map(i=>i.id)})),
+      downloadSelected:()=>{if(!n)return;if(n===1)this.startSingle(selItems[0]);else this.startZip(n,selMb,'denmark-2025-selection.zip');this.setState({selectMode:false,selected:[]});},
+      downloadAll:()=>this.startZip(s.items.length,totalMb,'denmark-2025-all.zip'),
+      hasViewer:!!cur,v,closeViewer:()=>this.setState({viewer:null}),prev:()=>this.nav(-1),next:()=>this.nav(1),
+      vDown:e=>{this.sx=e.clientX;},vUp:e=>{const dx=e.clientX-(this.sx??e.clientX);if(dx>50)this.nav(-1);else if(dx<-50)this.nav(1);},
+      toggleLike:()=>this.mutate(cur.id,i=>({...i,likes:i.likes.includes(s.me)?i.likes.filter(x=>x!==s.me):[...i.likes,s.me]})),
+      toggleFav:()=>this.mutate(cur.id,i=>({...i,fav:!i.fav})),downloadOne:()=>this.startSingle(cur),
+      hasUpload:!!s.upload,up,openUpload:()=>this.setState({upload:{stage:'pick',files:[]}}),
+      closeUpload:()=>this.setState({upload:null}),closeUploadBg:()=>this.setState({upload:null}),stop:e=>e.stopPropagation(),
+      sheetAlign:wide?'center':'flex-end',sheetRadius:wide?'24px':'24px 24px 0 0',
+      dropBorder:s.drag?'#2E4A5E':'#C9C5BD',dropBg:s.drag?'#EEF1F2':'#F4F2EE',dropTitle:s.drag?'Let go to upload':(wide?'Drop photos & videos here':'Choose photos & videos'),dropSub:wide?'or click to browse':'Tap to open your library',
+      onDragOver:e=>{e.preventDefault();if(!this.state.drag)this.setState({drag:true});},onDragLeave:()=>this.setState({drag:false}),
+      onDrop:e=>{e.preventDefault();this.setState({drag:false});this.onFiles(e.dataTransfer.files);},onFiles:e=>this.onFiles(e.target.files),
+      useSamples:e=>{e.preventDefault();this.startUpload(sampleFiles());},
+      viewUploaded:()=>{this.setState({upload:null,tab:'library',filter:'all'});setTimeout(()=>{const el=document.getElementById('day-'+((this.state.items[this.state.items.length-1]||{}).day||4));if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-60,behavior:'smooth'});},60);},
+      addMore:()=>this.setState({upload:{stage:'pick',files:[]}}),
+      mems:MEMS.map(m=>{const sl=this.memSlides(m.id);return {title:m.title,sub:m.sub,track:m.track,mood:m.mood,len:'0:'+pad2(Math.round(sl.length*SLIDE/1000)),bg:bgOf(sl[0]||s.items[0]),onClick:()=>this.openMemory(m.id)};}),
+      hasMemory:!!s.memory,mp,slideEl,slidePrev,mpTitleSize:wide?'72px':'44px',
+      closeMemory:()=>this.setState({memory:null}),memToggle:()=>this.memToggle(),memPrev:()=>this.memJump(-1),memNext:()=>this.memJump(1),
+      memReplay:()=>this.openMemory(s.memory.id),memShuffle:()=>this.setState(st=>({trackIdx:st.trackIdx+1})),
+      memSave:()=>this.startZip(1,48,`${(s.memory&&s.memory.id)||'memory'}-1080p.mp4`),
+      places:placeGroups.map(([name,ds],i)=>{const its=s.items.filter(x=>ds.includes(x.day));return {num:pad2(i+1),name,meta:`${ds.length>1?'Days '+ds.join('–'):'Day '+ds[0]} · ${DAYS[ds[0]-1].spot} · ${its.length} items`,thumbs:its.slice(0,wide?4:2).map(x=>({bg:bgOf(x)})),
+        onClick:()=>{this.setState({tab:'library',filter:'all'});setTimeout(()=>{const el=document.getElementById('day-'+ds[0]);if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-60});},60);}};}),
+      thumbSize:wide?'56px':'44px',mapH:wide?'380px':'220px',
+      hasToast:!!t,toast:t?{title:t.title,sub:t.sub,pct:t.done?'✓':Math.round(t.p*100)+'%',w:Math.round(t.p*100)+'%',bar:t.done?'#9DB4BF':'#F4F2EE'}:{},
+      toastBottom:wide?'100px':(s.selectMode?'96px':'100px')
+    };
+  }
+}
+</script>
+</body>
+</html>

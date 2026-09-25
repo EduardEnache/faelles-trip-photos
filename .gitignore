@@ -1,0 +1,9 @@
+node_modules/
+dist/
+storage/
+storage-dev/
+*.log
+.env
+.DS_Store
+e2e/out/
+server/test/.tmp/

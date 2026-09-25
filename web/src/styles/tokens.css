@@ -1,0 +1,137 @@
+/*
+ * fælles. design tokens — from the designer's handoff spec (BRIEF.md).
+ * SCAFFOLD-OWNED. Packages B and C read these; they never redefine them.
+ * Need a new value? Derive it locally in your *.module.css from these, or
+ * write it in notes/<pkg>.md for the orchestrator.
+ *
+ * Breakpoint (not expressible as a var in @media): WIDE = (min-width: 900px).
+ */
+:root {
+  /* ── palette ─────────────────────────────────────────── */
+  --kalk: #f4f2ee; /* app background */
+  --papir: #fbfaf8; /* raised surfaces, sheets, tab bar */
+  --taage: #e6e3dd; /* hairlines, tile underlay */
+  --sten: #6f6d68; /* secondary text (4.6:1 on Kalk) */
+  --blaek: #1d2125; /* primary text, active chips, toasts */
+  --fjord: #2e4a5e; /* THE action colour */
+  --fjord-hover: #243c4d;
+  --havglas: #9db4bf; /* completed states on dark */
+  --eg: #a97e57; /* oak: day labels, small warm accents */
+  --dannebrog: #b23a36; /* wordmark dot, errors, hearts — sparingly */
+  --nat: #0e1113; /* viewer & memory player background */
+
+  /* derived neutrals used by the prototype */
+  --line-strong: #d6d2ca; /* outlined button / chip border */
+  --line-soft: #efede8; /* row separators inside sheets */
+  --hover: #e9e6e0; /* keypad / soft button hover */
+  --press: #dedad2;
+  --soft: #efede8; /* soft round button bg (sheet close) */
+  --faint: #a9a69f; /* decorative only — fails contrast for text on light */
+  --moss: #5e7f72; /* per-file "done" in upload rows (= chris) */
+
+  /* on-dark (viewer, player) */
+  --on-dark: #edebe7;
+  --on-dark-muted: #a9a69f;
+  --on-dark-faint: #8c8a84;
+  --on-dark-line: rgba(237, 235, 231, 0.16);
+  --on-dark-soft: rgba(237, 235, 231, 0.08);
+  --heart-on-dark: #e07a74;
+  --star-on-dark: #d9b48a;
+
+  /* people */
+  --person-alex: #2e4a5e;
+  --person-sam: #a97e57;
+  --person-chris: #5e7f72;
+  --person-edi: #b23a36;
+  --on-person: #fbfaf8;
+
+  /* ── type ────────────────────────────────────────────── */
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --t-display: 72px; /* 500, -4.5% */
+  --t-display-mobile: 48px;
+  --t-title: 40px; /* 500, -3.5% */
+  --t-heading: 19px; /* 500, -2% */
+  --t-body: 16px; /* 400, 1.5 */
+  --t-label: 14px; /* 500 */
+  --t-small: 13px;
+  --t-meta: 11px; /* mono, +8%, uppercase */
+
+  --ls-display: -0.045em;
+  --ls-title: -0.035em;
+  --ls-heading: -0.02em;
+  --ls-meta: 0.08em;
+  --ls-meta-wide: 0.1em;
+  --lh-body: 1.5;
+
+  /* ── spacing (4px base) ──────────────────────────────── */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-12: 48px;
+
+  /* ── radius ──────────────────────────────────────────── */
+  --r-tile: 6px;
+  --r-input: 16px; /* 14–16 */
+  --r-card: 20px;
+  --r-sheet: 24px;
+  --r-pill: 999px;
+
+  /* ── layout ──────────────────────────────────────────── */
+  --max-w: 1400px;
+  --pad-x: 20px; /* 40px when wide */
+  --topbar-h: 56px; /* 68px when wide */
+  --tabbar-h: 66px; /* + env(safe-area-inset-bottom) */
+  --grid-gap: 2px; /* 6px when wide */
+  --grid-min: 220px; /* wide auto-fill track */
+  --touch: 44px; /* min touch target */
+
+  /* ── motion ──────────────────────────────────────────── */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-1: 250ms;
+  --dur-2: 300ms;
+  --dur-3: 350ms;
+
+  /* ── elevation & bars ────────────────────────────────── */
+  --shadow-float: 0 12px 40px rgba(17, 20, 22, 0.16);
+  --shadow-toast: 0 12px 40px rgba(17, 20, 22, 0.28);
+  --bar-bg: rgba(244, 242, 238, 0.86); /* translucent Kalk */
+  --tabbar-bg: rgba(251, 250, 248, 0.92); /* translucent Papir */
+  --bar-blur: 18px;
+  --scrim: rgba(17, 20, 22, 0.38);
+
+  /* ── focus ───────────────────────────────────────────── */
+  --focus-ring: 0 0 0 2px var(--kalk), 0 0 0 4px var(--fjord);
+  --focus-ring-dark: 0 0 0 2px var(--nat), 0 0 0 4px var(--havglas);
+
+  /* ── z-index scale (only these) ──────────────────────── */
+  --z-sticky: 5; /* day headers */
+  --z-bar: 20; /* top bar */
+  --z-tabbar: 30;
+  --z-selbar: 35;
+  --z-viewer: 50;
+  --z-sheet: 60; /* upload sheet/modal */
+  --z-player: 70; /* memory player */
+  --z-toast: 90;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --pad-x: 40px;
+    --topbar-h: 68px;
+    --grid-gap: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 1ms;
+    --dur-2: 1ms;
+    --dur-3: 1ms;
+  }
+}
