@@ -3,7 +3,7 @@
 # test:  build + media tools, runs the server test suite for real (tool-dependent tests only run here).
 # runtime: slim image with just the media tools + prod deps + built assets.
 
-FROM node:22-alpine3.20 AS build
+FROM node:22-alpine3.22 AS build
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
@@ -32,7 +32,7 @@ CMD ["npm", "test"]
 # ── dev stage: server + real media tools only, no web build at all — used
 # for the backend's shared dev backend on 127.0.0.1:8498 so it never depends
 # on (or is blocked by) B/C's in-progress web/ build. ──
-FROM node:22-alpine3.20 AS dev
+FROM node:22-alpine3.22 AS dev
 RUN apk add --no-cache vips-tools vips-heif ffmpeg exiftool tini
 WORKDIR /app
 COPY --from=build /app/shared ./shared
@@ -53,7 +53,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "--enable-source-maps", "server/dist/index.js"]
 
 # ── runtime: slim, media tools + prod deps only ──
-FROM node:22-alpine3.20 AS runtime
+FROM node:22-alpine3.22 AS runtime
 ARG BUILD_VERSION=dev
 RUN apk add --no-cache vips-tools vips-heif ffmpeg exiftool tini
 WORKDIR /app
