@@ -29,7 +29,9 @@ export function UploadRow({ entry, onRetry }: { entry: QueueEntry; onRetry: (cli
           ? entry.message ?? 'Waiting for connection'
           : entry.status === 'needs-file'
             ? entry.message ?? 'Tap to add this file again'
-            : 'Reading date and location…';
+            : entry.status === 'background'
+              ? 'Uploading in the background'
+              : entry.message ?? 'Reading date and location…';
 
   const statusLabel =
     entry.status === 'done'
@@ -83,7 +85,7 @@ export function UploadRow({ entry, onRetry }: { entry: QueueEntry; onRetry: (cli
           <WarningIcon />
         </span>
       )}
-      {(entry.status === 'queued' || entry.status === 'uploading' || entry.status === 'waiting') && (
+      {(entry.status === 'queued' || entry.status === 'uploading' || entry.status === 'waiting' || entry.status === 'background') && (
         <span className={s.status}>{statusLabel === '···' ? <PendingIcon /> : statusLabel}</span>
       )}
     </div>

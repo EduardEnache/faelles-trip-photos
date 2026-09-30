@@ -73,6 +73,10 @@
 }
 
 .drop {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  white-space: normal;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -86,7 +90,7 @@
   transition: all var(--dur-1) var(--ease);
 }
 .drop:hover,
-.drop:focus-within {
+.drop:focus-visible {
   border-color: var(--fjord);
 }
 .drop.active {
@@ -110,11 +114,10 @@
 }
 .dropSub {
   font-size: 14px;
+  line-height: 1.45;
   color: var(--sten);
-}
-
-.fileInput {
-  composes: visually-hidden from global;
+  max-width: 320px;
+  margin: 0 auto;
 }
 
 .filesPick {

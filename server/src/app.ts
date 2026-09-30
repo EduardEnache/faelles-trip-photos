@@ -146,6 +146,12 @@ export async function buildApp(overrides: ConfigOverrides = {}): Promise<BuiltAp
   });
   app.all(`${TUS_PATH}/*`, (request, reply) => {
     reply.hijack();
+    // Background Fetch (phones uploading with the browser minimised) sends
+    // its PATCH as POST + X-HTTP-Method-Override; @tus/server doesn't map it.
+    const override = request.headers['x-http-method-override'];
+    if (request.raw.method === 'POST' && typeof override === 'string' && override.toUpperCase() === 'PATCH') {
+      request.raw.method = 'PATCH';
+    }
     void tusServer.handle(request.raw, reply.raw);
   });
 

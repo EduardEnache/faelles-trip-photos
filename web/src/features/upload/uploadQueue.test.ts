@@ -23,7 +23,7 @@ describe('uploadQueue: stageOf (upload sheet state machine)', () => {
     expect(stageOf([])).toBe('pick');
   });
 
-  it.each(['queued', 'uploading', 'waiting', 'needs-file'] as const)(
+  it.each(['queued', 'uploading', 'waiting', 'background', 'needs-file'] as const)(
     'any entry still %s -> progress',
     (status) => {
       expect(stageOf([entry(status)])).toBe('progress');

@@ -3,7 +3,7 @@
  * centred modal), progress and done states. The queue itself lives in
  * uploadQueue.ts and keeps running when this sheet is closed.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ACCEPT_ATTR } from '@shared/api';
 
 /**
@@ -20,6 +20,10 @@ const PICKER_ACCEPT = IS_TOUCH ? 'image/*,video/*' : ACCEPT_ATTR;
  * (Files / My Files), whose files keep their location.
  */
 const FILES_ACCEPT = ACCEPT_ATTR;
+/** iPhone/iPad (iPadOS reports as a Mac with touch). Its picker keeps locations, so no Files option. */
+const IS_IOS =
+  typeof navigator !== 'undefined' &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 import { personOf, sectionTitle, SECTION_ORDER, type DayKey } from '@shared/trip';
 import { formatBytes, plural } from '@shared/format';
 import { CheckIcon, CloseIcon, UploadIcon, WarningIcon } from '@/lib/icons';
@@ -28,6 +32,7 @@ import { closeOverlay, goToDay, navigateTab } from '@/lib/router';
 import { useSession } from '@/state/session';
 import { useLibrary } from '@/state/library';
 import { acknowledgeFinished, enqueueFiles, retryWithFile, stageOf, useUploadEntries } from './uploadQueue';
+import { pickFiles } from './picker';
 import { UploadRow } from './UploadRow';
 import s from './UploadSheet.module.css';
 
@@ -38,28 +43,27 @@ export function UploadSheet({ wide }: { wide: boolean }) {
   const startChoosing = useSession((st) => st.startChoosingPerson);
   const disk = useLibrary((st) => st.disk);
   const [drag, setDrag] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const filesInputRef = useRef<HTMLInputElement>(null);
-  const retryTargetRef = useRef<string | null>(null);
+  /** Picker open, or iOS still copying the chosen photos out of the library. */
+  const [awaiting, setAwaiting] = useState(false);
 
   const person = me ? personOf(me) : null;
 
-  function openPicker(retryFor: string | null = null) {
-    retryTargetRef.current = retryFor;
-    inputRef.current?.click();
+  function openPicker(accept: string, retryFor: string | null = null) {
+    setAwaiting(retryFor == null);
+    pickFiles(accept, {
+      onFiles(files) {
+        setAwaiting(false);
+        if (retryFor) retryWithFile(retryFor, files[0]!);
+        else enqueueFiles(files);
+      },
+      onCancel: () => setAwaiting(false),
+    });
   }
 
-  function onFiles(list: FileList | null) {
-    if (!list || !list.length) return;
-    if (retryTargetRef.current) {
-      retryWithFile(retryTargetRef.current, list[0]!);
-      retryTargetRef.current = null;
-    } else {
-      enqueueFiles(list);
-    }
-  }
-
-  const active = entries.filter((e) => e.status === 'queued' || e.status === 'uploading' || e.status === 'waiting');
+  const active = entries.filter(
+    (e) => e.status === 'queued' || e.status === 'uploading' || e.status === 'waiting' || e.status === 'background',
+  );
+  const inBackground = entries.some((e) => e.status === 'background');
   const activeSent = active.reduce((a, e) => a + e.bytesSent, 0);
   const activeTotal = active.reduce((a, e) => a + e.size, 0);
   const activeDone = entries.filter((e) => e.status === 'done' || e.status === 'duplicate').length;
@@ -140,8 +144,10 @@ export function UploadSheet({ wide }: { wide: boolean }) {
                 Not enough storage on the server right now. Try again later.
               </div>
             ) : (
-              <label
-                className={[s.drop, drag && s.active].filter(Boolean).join(' ')}
+              <button
+                type="button"
+                className={[s.drop, (drag || awaiting) && s.active].filter(Boolean).join(' ')}
+                onClick={() => openPicker(PICKER_ACCEPT)}
                 onDragOver={(e) => {
                   e.preventDefault();
                   setDrag(true);
@@ -150,46 +156,43 @@ export function UploadSheet({ wide }: { wide: boolean }) {
                 onDrop={(e) => {
                   e.preventDefault();
                   setDrag(false);
-                  onFiles(e.dataTransfer.files);
+                  if (e.dataTransfer.files.length) enqueueFiles(e.dataTransfer.files);
                 }}
               >
-                <input
-                  ref={inputRef}
-                  className={s.fileInput}
-                  type="file"
-                  multiple
-                  accept={PICKER_ACCEPT}
-                  onChange={(e) => {
-                    onFiles(e.target.files);
-                    e.target.value = '';
-                  }}
-                />
                 <div className={s.dropIcon} aria-hidden="true">
                   <UploadIcon />
                 </div>
                 <div>
-                  <div className={s.dropTitle}>{drag ? 'Let go to upload' : wide ? 'Drop photos & videos here' : 'Choose photos & videos'}</div>
-                  <div className={s.dropSub}>{wide ? 'or click to browse' : 'Tap to open your library'}</div>
+                  <div className={s.dropTitle}>
+                    {drag
+                      ? 'Let go to upload'
+                      : awaiting
+                        ? 'Waiting for your photos…'
+                        : wide
+                          ? 'Drop photos & videos here'
+                          : 'Choose photos & videos'}
+                  </div>
+                  <div className={s.dropSub}>
+                    {awaiting
+                      ? IS_IOS
+                        ? 'After you tap Add, iPhone prepares the originals first. Big photos and videos can take a minute.'
+                        : 'Pick them in the window that opened.'
+                      : wide
+                        ? 'or click to browse'
+                        : 'Tap to open your library'}
+                  </div>
                 </div>
-              </label>
+              </button>
+            )}
+            {awaiting && (
+              <button type="button" className={s.filesLink} onClick={() => setAwaiting(false)}>
+                Cancel
+              </button>
             )}
 
-            {IS_TOUCH && !disk?.uploadsBlocked && (
+            {IS_TOUCH && !IS_IOS && !awaiting && !disk?.uploadsBlocked && (
               <div className={s.filesPick}>
-                <input
-                  ref={filesInputRef}
-                  className={s.fileInput}
-                  type="file"
-                  multiple
-                  accept={FILES_ACCEPT}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  onChange={(e) => {
-                    onFiles(e.target.files);
-                    e.target.value = '';
-                  }}
-                />
-                <button type="button" className={s.filesLink} onClick={() => filesInputRef.current?.click()}>
+                <button type="button" className={s.filesLink} onClick={() => openPicker(FILES_ACCEPT)}>
                   Keep locations: pick from Files
                 </button>
                 <div className={s.filesHint}>The gallery removes where photos were taken. In Files, open DCIM › Camera.</div>
@@ -243,12 +246,20 @@ export function UploadSheet({ wide }: { wide: boolean }) {
         {entries.length > 0 && (
           <div className={s.list}>
             {entries.map((e) => (
-              <UploadRow key={e.clientId} entry={e} onRetry={(id) => openPicker(id)} />
+              <UploadRow key={e.clientId} entry={e} onRetry={(id) => openPicker(PICKER_ACCEPT, id)} />
             ))}
           </div>
         )}
 
-        {stage === 'progress' && <div className={s.hint}>You can close this. Keep Øresund open until it&rsquo;s done.</div>}
+        {stage === 'progress' && (
+          <div className={s.hint}>
+            {inBackground
+              ? 'You can leave the app. Uploads keep going in the background; your phone shows their progress in a notification.'
+              : IS_IOS
+                ? 'Keep Øresund open until it’s done. iPhone pauses uploads when you leave Safari; they continue when you come back.'
+                : 'You can close this. Keep Øresund open until it’s done.'}
+          </div>
+        )}
 
         {stage === 'done' && (
           <div className={s.actions}>

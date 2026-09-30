@@ -496,6 +496,40 @@ describe('fælles. server integration', () => {
       const origBuf = Buffer.from(await orig.arrayBuffer());
       expect(sha256(origBuf)).toBe(sha256(buf));
     });
+
+    it('POST + X-HTTP-Method-Override: PATCH (Background Fetch) is handled as a PATCH', async () => {
+      const jar = await login(base, '1234', 'chris');
+      const buf = fixture('png-no-exif.png');
+      const createRes = await fetch(`${base}/api/uploads/`, {
+        method: 'POST',
+        headers: {
+          ...jar.header(),
+          'Tus-Resumable': '1.0.0',
+          'Upload-Length': String(buf.length),
+          // key-only filetype, as the background path sends when File.type is empty
+          'Upload-Metadata': `filename ${Buffer.from('bg-override.png').toString('base64')},filetype`,
+        },
+      });
+      expect(createRes.status).toBe(201);
+      const uploadUrl = new URL(createRes.headers.get('location')!, `${base}/api/uploads/`).toString();
+
+      const res = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          ...jar.header(),
+          'Tus-Resumable': '1.0.0',
+          'Upload-Offset': '0',
+          'Content-Type': 'application/offset+octet-stream',
+          'X-HTTP-Method-Override': 'PATCH',
+        },
+        body: buf,
+      });
+      expect(res.status).toBe(204);
+      const itemId = res.headers.get('faelles-item-id');
+      expect(itemId).toBeTruthy();
+      const orig = await fetch(`${base}/api/media/${itemId}/original`, { headers: jar.header() });
+      expect(sha256(Buffer.from(await orig.arrayBuffer()))).toBe(sha256(buf));
+    });
   });
 
   describe('mutations, SSE, and zip', () => {
