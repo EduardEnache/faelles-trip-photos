@@ -1,7 +1,7 @@
-# fælles. — implementation plan
+# fælles. — architecture & implementation plan
 
-Read `BRIEF.md` first. This plan turns the prototype (`design/Trip App.dc.html`) into a real,
-deployable app. It is decisive on purpose. The scaffold described in §11 already exists and compiles.
+This plan turns the prototype (`design/Trip App.dc.html`) into a real,
+deployable app.
 
 **Design read:** a private, content-first photo app for four friends on phones on patchy data, in a
 quiet Nordic language the designer already defined (Kalk/Papir/Blæk neutrals, one Fjord action
@@ -35,7 +35,7 @@ call, so no auto dark mode for the library).
 
 - **One container, one Node process.** `node:22-alpine3.20` (Node 20 is EOL since April 2026;
   Node 22 LTS on the same Alpine 3.20 whose `vips-tools vips-heif ffmpeg exiftool` set is verified
-  in BRIEF.md). `tini` as PID 1. Runs as `1000:1000` so files in `./storage` belong to the user.
+  in the design handoff). `tini` as PID 1. Runs as `1000:1000` so files in `./storage` belong to the user.
 - **Port:** container listens on 8497; compose publishes `127.0.0.1:8497:8497`.
 - **Build:** multi-stage Dockerfile. `build` stage (with `python3 make g++` as better-sqlite3
   fallback) builds `web/` (Vite) and `server/` (esbuild bundle, `--packages=external`, which also
@@ -260,7 +260,7 @@ needs no migration.
 
 ---
 
-## 3. Memories (package C)
+## 3. Memories
 
 All derived client-side from the library store (`features/memories/pickMemories.ts`, pure,
 unit-tested). Only `status==='ready'` items. A memory needs **at least** the listed items, else it
@@ -323,7 +323,7 @@ five for this session, **mute** toggle persisted per device (localStorage), defa
 
 ---
 
-## 4. Places (package C)
+## 4. Places
 
 - **MapLibre GL 5 + OpenFreeMap "positron" vector style**, no API key. Chosen over Leaflet +
   raster tiles because vector layers can be recoloured to the palette at runtime: after load, set
@@ -341,7 +341,7 @@ five for this session, **mute** toggle persisted per device (localStorage), defa
 
 ---
 
-## 5. Day captions (package C)
+## 5. Day captions
 
 In each trip-day header (B renders `<DayCaption day editable/>`): the caption in Sten 14 px with a
 16 px avatar of whoever wrote it; none + editable → text button "Add a line about this day". Tap →
@@ -455,149 +455,8 @@ queue state machine, selection range, save-method choice).
 390×844 (mobile, touch, DPR 2) and 1440×900. `e2e/b_core.py` (B) and `e2e/c_extras.py` (C) log in
 through the real API, screenshot every screen/state they own into `e2e/out/`, and assert: no console
 errors, no horizontal scroll, interactive elements ≥ 44 px in their smaller dimension (inline text
-links excepted), dark viewer/player backgrounds. The orchestrator runs both against production
+links excepted), dark viewer/player backgrounds. Both run against production
 (`FAELLES_URL=http://127.0.0.1:8497/photos/`) and once through `scripts/strip-proxy.mjs` to prove the
 stripped-prefix mode end to end (including an upload).
 
 ---
-
-## 9. Work packages (three agents, same tree, at the same time)
-
-### Ground rules for all packages
-- Write **only** inside your OWNED paths. Everything else is read-only. Scaffold files
-  (§11) are frozen; if you need a change there, or the contract seems wrong/missing, write it in
-  your `notes/<A|B|C>.md` and work around it locally. Don't wait.
-- **Do not commit, do not run git commands that write** (shared index). The orchestrator commits.
-- `web/package.json` is frozen: all web deps are installed. Don't `npm install` in `web/`.
-  the backend owns `server/package.json` and may add server deps.
-- Web typecheck: `cd web && npx tsc -p tsconfig.app.json` (no build info written). Your acceptance
-  is zero errors **in your own paths**; errors in another package's WIP are theirs.
-- Ports: 8497 is production (don't leave anything on it). A's dev container: **8498**.
-  B's Vite: **5181** (`VITE_CACHE_DIR=node_modules/.vite-b`), C's Vite: **5182** (`.vite-c`).
-  Start Vite with `FAELLES_API=http://127.0.0.1:8498 npx vite --port 518x`. Stop what you start
-  (dev container excepted, see A).
-- Copy: sentence case, plain verbs, no em dashes, no emoji, errors say what happened and what to do.
-- Every component: keyboard reachable, visible focus, `aria-label` on icon-only buttons, ≥ 44 px
-  targets, `prefers-reduced-motion` respected, works at 390 px with a 16–20 px gutter.
-
-### Backend — backend, media pipeline, container, docs
-**Goal:** the complete server in §1 behind the exact `shared/api.ts` contract, containerised.
-**OWNS:** `server/**` (incl. `package.json`, tests, fixtures, scripts), `Dockerfile`,
-`docker-compose.yml`, `docker-compose.dev.yml`, `README.md`, `scripts/**`, `notes/A.md`.
-**READS:** `shared/**`, `BRIEF.md`, `PLAN.md`, `web/` (only to build it in the Dockerfile).
-**Milestone A1 (do first, then tell the others by writing `notes/A.md` "A1 READY"):** dev instance
-`docker compose -p faelles-dev -f docker-compose.yml -f docker-compose.dev.yml up -d --build`
-on **127.0.0.1:8498** with `./storage-dev`, serving: session/PIN, library, tus upload + finalize +
-exiftool, photo derivatives, media serving with Range, SSE, and the seed data loaded. Leave it
-running (it is the shared dev backend); rebuild it as you go.
-**Then A2:** video pipeline + HDR, ZIP, hearts/highlight/delete/restore/captions, throttling,
-disk guard, CSP/headers, trash + incoming purge, README (run, backup, PIN change, funnel command,
-troubleshooting), all tests.
-**Suggested layout:** `src/index.ts` (boot), `src/app.ts` (`buildApp(config)`), `src/config.ts`,
-`src/db/*.ts`, `src/auth/*.ts`, `src/routes/*.ts`, `src/upload/tus.ts`, `src/media/{capture,exif,
-vips,ffmpeg,queue,tools}.ts`, `src/zip.ts`, `src/events.ts`, `src/disk.ts`.
-**Acceptance:**
-- Every endpoint/type/status in `shared/api.ts` implemented exactly (DTO fields never `undefined`).
-- Works with and without `/photos` (tests + strip proxy), incl. tus Location.
-- HEIC, JPEG, PNG, DNG (embedded preview), MOV HEVC (HDR → SDR), MP4 all produce derivatives;
-  originals byte-identical.
-- PIN: 5 wrong → 429 with Retry-After; global backoff works; right PIN during a per-IP lockout
-  from another IP works.
-- `docker compose up -d --build` → healthy on 127.0.0.1:8497 with `./storage`; restart re-enqueues
-  processing items.
-**Verify:** `cd server && npx tsc --noEmit && npm test`; `docker build --target test -t faelles-test . &&
-docker run --rm faelles-test`; `curl -s 127.0.0.1:8498/photos/api/health`;
-`node scripts/strip-proxy.mjs 8499 8498` + upload through `http://127.0.0.1:8499/photos/`.
-
-### Frontend core — frontend core
-**Goal:** everything a person touches to get photos in, browse them and get them out.
-**OWNS:** `web/src/app/**` (Root, shell, top bar, tab bar, layout),
-`web/src/features/auth/**` (PIN gate, Who's this), `web/src/features/library/**` (hero, filter chips,
-day sections, grid, tiles, empty states, footer), `web/src/features/viewer/**`,
-`web/src/features/select/**` (select mode, per-day select, selection bar/pill, size total),
-`web/src/features/upload/**` (sheet/modal, drop zone incl. page-level drag on desktop, tus queue,
-rows, pending badge), `web/src/features/toast/**` (ToastHost rendering `state/toast.ts`),
-`web/src/lib/save.ts` (keep the exported signatures), `e2e/b_core.py`, `notes/B.md`.
-**READS:** everything in the scaffold (§11) and C's slot modules (render them via `src/slots.ts`).
-**Integration duties:** Root gates on `useSession().status` (`unknown` → blank Kalk, `locked` →
-PIN, `needs-person` or `choosingPerson` → Who, `ready` → shell), then calls
-`useLibrary.getState().load()` and `startLive()`. Shell renders tabs by `useRoute().tab` with
-`MemoriesTab`/`PlacesTab` from `src/slots.ts` in `<Suspense>`, `<FeaturedMemoryCard/>` above the
-chips, `<DayCaption day editable={!selectMode}/>` in trip-day headers, `<MemoryPlayer>` when
-`route.memory`, viewer when `route.item`, upload when `route.upload`. Consumes `route.day`
-(scroll to `#day-<key>` minus sticky offsets, then `clearDayTarget()`).
-**Acceptance:**
-- Screens 01–07 of the spec + desktop variants match the prototype's layout, sizes and copy
-  (with the §7 improvements). Tab bar hidden in select mode (mobile); floating pill on desktop.
-- Long-press 480 ms enters select; tap active chip clears it; per-day select; running size total.
-- Upload survives: airplane-mode mid-file → "Waiting for connection" → resumes from offset on
-  reconnect; reload + re-pick the same file → resumes (tus fingerprint); 401 mid-queue → PIN gate,
-  resume after login. Done stage names the days from the server's items.
-- Viewer: swipe (pointer, 50 px), ←/→/Esc, hearts with liker avatars, star, save/original per
-  `saveMethodFor`, own-item "Remove from album" with Undo toast, video preview playback.
-- Live: an upload from another browser context appears without reload.
-**Verify:** `npx tsc -p tsconfig.app.json` (own paths clean), `npx vitest run src/features`,
-`~/.venvs/playwright/bin/python e2e/b_core.py` (both viewports, all states, assertions pass).
-
-### Frontend extras — frontend extras
-**Goal:** Memories + player + generated ambient audio, Places + map, day captions.
-**OWNS:** `web/src/features/memories/**` (incl. `MemoriesTab.tsx`, `MemoryPlayer.tsx`,
-`FeaturedMemoryCard.tsx`, `pickMemories.ts`, `audio/**`), `web/src/features/places/**`
-(incl. `PlacesTab.tsx`, map style recolouring, place grouping), `web/src/features/captions/**`
-(incl. `DayCaption.tsx`), `e2e/c_extras.py`, `notes/C.md`.
-**READS:** the scaffold (§11), `design/`, `shared/`. Uses `saveItems()` from `lib/save.ts` (B owns;
-the signature is fixed) and the toast store.
-**Contract with B:** keep the export names/default exports and prop types from `src/slots.ts`.
-`FeaturedMemoryCard` returns `null` when nothing qualifies. `MemoryPlayer` is fixed/fullscreen at
-`z-index: var(--z-player)`, handles its own keys and calls `onClose`.
-**Acceptance:**
-- Memories and eligibility exactly as §3; empty state with real numbers; featured card as §3.
-- Player: segments, tap zones, title card, Ken Burns (off under reduced motion), pause on hidden tab,
-  keys, ended screen with Replay + "Save these N"; audio per §3.2 with mood per memory, Change,
-  mute persisted, clean teardown (no audio after close, no leaked contexts after 5 opens).
-- Places: recoloured MapLibre map (lazy chunk), clusters, list grouped as §4, row → library day,
-  offline fallback, empty state.
-- Captions: inline edit per §5, optimistic, 140 chars, SSE updates.
-**Verify:** `npx tsc -p tsconfig.app.json` (own paths clean), `npx vitest run src/features/memories
-src/features/places`, `~/.venvs/playwright/bin/python e2e/c_extras.py`.
-
----
-
-## 10. Open questions for the orchestrator / user
-
-1. **Edi's Sony α7C clock**: cameras keep whatever zone they were set to (maybe Romania, UTC+3) and
-   write no offset, so its photos may sort an hour late. Cheap fix if it happens: a per-camera
-   offset correction (not built now).
-2. **Global PIN backoff can lock friends out for 15 min** if someone hammers the URL. Existing
-   sessions keep working (90-day cookie), so only new devices are affected. Acceptable?
-3. **Trash retention** 30 days, no purge UI. Fine for now?
-4. **Map tiles come from OpenFreeMap** (third-party request from viewers' phones, no key, no
-   tracking cookies). OK privacy-wise, or would they rather have no basemap?
-
----
-
-## 11. Scaffold (exists now, compiles; frozen, owned by the orchestrator)
-
-```
-.gitignore .dockerignore PLAN.md BRIEF.md
-shared/api.ts        full HTTP/SSE contract, limits, path builders, file-type helpers
-shared/trip.ts       people, trip, days, POIs, cities, tz helpers, dayOf, nearestPoi, cityOf, deriveDay
-shared/format.ts     formatBytes, formatDuration, formatDateLine, formatCoords, plural
-server/package.json tsconfig.json vitest.config.ts src/index.ts (stub with stripBase)
-server/test/shared.test.ts            (package A may extend; don't delete)
-web/package.json tsconfig*.json vite.config.ts index.html
-web/src/main.tsx App.tsx vite-env.d.ts slots.ts
-web/src/styles/tokens.css base.css
-web/src/lib/api.ts router.ts icons.ts useMedia.ts
-web/src/state/session.ts library.ts toast.ts
-web/src/ui/Button.tsx Button.module.css Avatar.tsx Wordmark.tsx index.ts
-web/src/app/Root.tsx                  STUB → package B replaces
-web/src/lib/save.ts                   minimal working version → package B completes
-web/src/features/memories/{MemoriesTab,MemoryPlayer,FeaturedMemoryCard}.tsx   STUBS → package C
-web/src/features/places/PlacesTab.tsx                                          STUB → package C
-web/src/features/captions/DayCaption.tsx                                       STUB → package C
-e2e/helpers.py
-```
-
-Exception to "frozen": `server/src/index.ts` and `server/package.json` belong to A;
-`web/src/app/Root.tsx` + `web/src/lib/save.ts` to B; the five feature stubs to C.

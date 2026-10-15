@@ -1,5 +1,5 @@
 /*
- * fælles. design tokens — from the designer's handoff spec (BRIEF.md).
+ * fælles. design tokens — from the design handoff spec.
  * SCAFFOLD-OWNED. Packages B and C read these; they never redefine them.
  * Need a new value? Derive it locally in your *.module.css from these, or
  * write it in notes/<pkg>.md for the orchestrator.

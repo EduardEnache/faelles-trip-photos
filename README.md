@@ -1,155 +1,136 @@
-# fælles.
+<div align="center">
 
-A private, shared photo/video album for four friends (Alex, Sam, Chris, Edi) on a Denmark trip,
-Fri 25 – Mon 28 Sept 2026. One link, one PIN, one shared library. See `BRIEF.md` and `PLAN.md` for
-the full design and architecture.
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,55:1f2a44,100:3b82f6&height=200&section=header&text=f%C3%A6lles.&fontSize=58&fontColor=ffffff&fontAlignY=36&desc=A%20private%2C%20shared%20photo%20and%20video%20album%20for%20one%20trip&descSize=17&descAlignY=58&animation=fadeIn" width="100%" alt="fælles."/>
 
-This file covers running, backing up, changing the PIN, going public over the Tailscale Funnel, and
-troubleshooting. It documents the backend (server/container); the frontend is the frontend's build in
-`web/`.
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Fastify](https://img.shields.io/badge/Fastify-5-000000?style=flat-square&logo=fastify&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
+![SQLite](https://img.shields.io/badge/SQLite-WAL-003B57?style=flat-square&logo=sqlite&logoColor=white)
+![tus](https://img.shields.io/badge/uploads-tus%201.0-3b82f6?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-146-22c55e?style=flat-square&logo=vitest&logoColor=white)
 
-## Running the production container
+<sub><a href="#-what-it-is">What it is</a> &nbsp;·&nbsp; <a href="#-features">Features</a> &nbsp;·&nbsp; <a href="#-architecture">Architecture</a> &nbsp;·&nbsp; <a href="#-engineering-notes">Engineering notes</a> &nbsp;·&nbsp; <a href="docs/OPERATIONS.md">Operations</a></sub>
+
+</div>
+
+<br/>
+
+> Four friends, four days in Denmark, two iPhones and two Androids. Instead of a group chat that compresses
+> everything, one link and one four-digit PIN open a shared library of **originals**: uploads that survive
+> roaming data and locked screens, HEIC and HDR video that just work, and a generated "memory" film with its own soundtrack at the end of each day.
+
+<br/>
+
+<table>
+  <tr>
+    <td width="33%"><img src=".github/assets/pin.webp" alt="PIN entry screen"/></td>
+    <td width="33%"><img src=".github/assets/who.webp" alt="Choose who you are"/></td>
+    <td width="33%"><img src=".github/assets/library.webp" alt="Library with featured memory, filters and day sections"/></td>
+  </tr>
+</table>
+
+<sub>UI design prototype (<code>design/</code>) with placeholder members and imagery; the production app implements this design.</sub>
+
+## ◆ &nbsp;What it is
+
+A self-hosted, mobile-first album for a single trip: one Fastify process, one SQLite file, one storage folder,
+in one Docker container. No accounts and no cloud. Everyone opens the same link, enters the PIN, picks their name once,
+and from then on every upload, heart and caption is attributed to them.
+
+## ◆ &nbsp;Features
+
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <h4>⬆️ Uploads that finish</h4>
+      <p>Resumable tus uploads; on Android, Background Fetch keeps them going with the app minimised or the tab closed, resuming from the server offset if anything stalls.</p>
+    </td>
+    <td width="33%" valign="top">
+      <h4>🖼️ Real media pipeline</h4>
+      <p>exiftool metadata, vips WebP thumbnails and display copies, ffmpeg posters and H.264 previews with HDR→SDR tone-mapping, so iPhone HEIC and HLG video just work.</p>
+    </td>
+    <td width="33%" valign="top">
+      <h4>🎞️ Memories</h4>
+      <p>Moments scored by hearts and highlights, sampled per day and played full-bleed with a generative Web Audio soundtrack whose mood follows the city.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="33%" valign="top">
+      <h4>📍 Places &amp; days</h4>
+      <p>GPS points grouped into places on a MapLibre map; the library is organised by trip day with inline day captions.</p>
+    </td>
+    <td width="33%" valign="top">
+      <h4>⚡ Live &amp; social</h4>
+      <p>Server-Sent Events push new items to every phone instantly; hearts, highlights, per-person filters and multi-select.</p>
+    </td>
+    <td width="33%" valign="top">
+      <h4>💾 Get originals out</h4>
+      <p>"Save all to Photos" or a streamed ZIP of untouched originals with an exact Content-Length, so downloads show real progress.</p>
+    </td>
+  </tr>
+</table>
+
+## ◆ &nbsp;Architecture
+
+```mermaid
+flowchart LR
+    P["Phones<br/>React 19 SPA"] -->|HTTPS| F["Tailscale Funnel<br/>/photos prefix"]
+    F --> A
+    subgraph C["Docker container"]
+      A["Fastify 5"] --> T["tus 1.0<br/>resumable uploads"]
+      A --> E["REST + SSE<br/>media · zip"]
+      T --> Q["durable job queue<br/>photo lane · video lane"]
+      Q --> X["exiftool · vips · ffmpeg"]
+      A --> DB[("SQLite<br/>WAL")]
+      Q --> DB
+    end
+    X --> S[("./storage<br/>originals + derivatives")]
+```
+
+| Layer | Stack |
+|---|---|
+| Frontend | React 19, Vite 7, Zustand, MapLibre GL, tus-js-client, Phosphor icons, Instrument Sans + Geist Mono |
+| Backend | Node 22, Fastify 5, @tus/server 2, better-sqlite3 (WAL, foreign keys on), yazl streaming ZIP |
+| Media | exiftool, libvips (vips-heif), ffmpeg on Alpine 3.22, `tini` as PID 1, non-root user |
+| Quality | Vitest unit and integration suites (146 tests), Python Playwright e2e at 390×844 and 1440×900 |
+
+The full design (storage layout, auth and throttling, upload flow, metadata rules, queue, SSE, memories, audio engine,
+places logic) is documented in **[PLAN.md](PLAN.md)**.
+
+## ◆ &nbsp;Engineering notes
+
+- **Prefix-agnostic routing.** The app works whether the `/photos` prefix is stripped by the proxy or passed through, verified in both modes.
+- **iOS photo picking.** Each pick gets its own file input that survives until upload, because iOS can take a while to copy originals out of the library.
+- **Android background uploads.** After a small tus `POST`, bytes go to the browser's download manager as one `PATCH`; files are copied into plain Blobs first because Chrome sends empty bodies for input-backed Files.
+- **iOS 26 HEIC.** Alpine 3.22 ships libheif 1.19, which decodes the auxiliary image references that libheif 1.17 rejected.
+- **Capture time you can trust.** Timestamps resolve from EXIF/QuickTime tags with offset handling, tested against synthetic fixtures for each phone family.
+- **Safety rails.** PIN attempts are throttled, a disk-free guard refuses new uploads before the volume fills, and stale partial uploads are purged.
+
+## ◆ &nbsp;Run it
 
 ```sh
-docker compose build
-docker compose up -d
-curl http://127.0.0.1:8497/api/health
+FAELLES_PIN=1234 docker compose up -d --build   # 127.0.0.1:8497
 ```
 
-Binds `127.0.0.1:8497`. Data lives in `./storage` (bind-mounted to `/data` in the container):
-originals, derivatives (thumbnails/previews), the SQLite database, and `secret.key` (session-signing
-key, created on first boot). Logs: `docker compose logs -f`.
+Backups, changing the PIN, exposing it over Tailscale Funnel, the dev backend and troubleshooting are in the
+**[operations guide](docs/OPERATIONS.md)**.
 
-Config is environment variables (see `docker-compose.yml`): `FAELLES_PIN` (default `1234`),
-`ALBUM_TITLE` (default `Denmark 2026`), `PHOTO_CONCURRENCY`/`VIDEO_CONCURRENCY`, `LOG_LEVEL`,
-`BUILD_VERSION`. Override via a `.env` file next to `docker-compose.yml` or `FAELLES_PIN=1234 docker
-compose up -d`.
+## ◆ &nbsp;Tech
 
-Restarting is safe: any item still `processing` (derivatives not finished) is automatically
-re-queued on boot (verified — kill the container mid-encode and it picks back up).
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js%2022-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
+![Fastify](https://img.shields.io/badge/Fastify-000000?style=flat-square&logo=fastify&logoColor=white)
+![React](https://img.shields.io/badge/React-20232a?style=flat-square&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
+![FFmpeg](https://img.shields.io/badge/FFmpeg-007808?style=flat-square&logo=ffmpeg&logoColor=white)
+![MapLibre](https://img.shields.io/badge/MapLibre-396CB2?style=flat-square&logo=maplibre&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)
 
-## Going public (Tailscale Funnel)
+<br/>
 
-The user runs this manually (not automated by the app):
-
-```sh
-docker exec tailscale tailscale funnel --bg --https=10000 --set-path=/photos http://127.0.0.1:8497
-```
-
-This publishes the album at `https://<node>:10000/photos/` alongside whatever else already serves
-`/` on that port. Funnel **strips** the `/photos` prefix before it reaches the container — the app
-is built to work identically whether the prefix arrives or not (see "the /photos prefix" below).
-Locally, the app is reachable at `http://127.0.0.1:8497/photos/` (or bare `http://127.0.0.1:8497/`).
-
-## Changing the PIN
-
-Set `FAELLES_PIN` and restart the container:
-
-```sh
-FAELLES_PIN=1234 docker compose up -d
-```
-
-This immediately invalidates every existing session (the session cookie embeds a hash derived from
-the PIN + a server secret; changing the PIN changes that hash). Everyone has to re-enter the new PIN.
-There's no PIN-rotation admin UI — this is the whole mechanism, and it's intentionally cheap.
-
-## Backups
-
-Everything that matters is under `./storage`:
-
-```
-storage/
-  originals/<person>/<ULID>-<name>   the actual photos/videos, byte-identical, human-browsable
-  derived/<ULID>/...                 thumbnails/previews (regenerable, not precious)
-  db/faelles.sqlite(+ -wal, -shm)    metadata, hearts, highlights, captions
-  secret.key                         session-signing key (losing it just logs everyone out)
-  incoming/, trash/                  in-flight uploads, soft-deleted items (30-day retention)
-```
-
-To back up: stop the container (`docker compose stop`) and copy `./storage` somewhere, or use
-`sqlite3 storage/db/faelles.sqlite ".backup '/path/backup.sqlite'"` for a live, consistent DB
-snapshot without stopping anything (WAL mode makes this safe), then separately rsync
-`storage/originals` (the only irreplaceable bytes — derivatives regenerate from them if ever lost;
-resetting `has_thumb`/`has_display`/`has_preview` to 0 for an item and restarting would re-derive it,
-though there's no admin command for that today).
-
-The originals are plain files on disk, organised by person, so you can also just point a phone/laptop
-backup tool at `./storage/originals` directly.
-
-## Development
-
-### Shared dev backend (127.0.0.1:8498)
-
-A persistent dev instance for frontend work, with real media tools (vips/ffmpeg/exiftool) and
-seeded data:
-
-```sh
-docker compose -p faelles-dev -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-node server/scripts/seed-dev.mjs   # first run generates its own seed media via Docker
-```
-
-Storage: `./storage-dev` (separate from production `./storage`). Rebuild after server changes with
-the same `up -d --build` command. Stop with `docker compose -p faelles-dev -f docker-compose.yml -f
-docker-compose.dev.yml down`.
-
-The dev image (`dev` build target) intentionally **skips the web/ build** so it's never blocked by
-frontend work-in-progress — it serves the API only. Frontend packages run their own Vite dev servers
-(ports 5181/5182) proxying `/photos/api/*` to this backend.
-
-### Running the server outside Docker
-
-```sh
-cd server
-npm run dev   # tsx watch, needs vips/ffmpeg/exiftool on PATH or tool-dependent
-              # features just report unavailable/failed rather than crashing
-```
-
-### Tests
-
-```sh
-cd server
-npx tsc --noEmit
-npm test                                  # unit + integration; tool-dependent
-                                           # assertions skip if tools aren't on PATH
-docker build --target test -t faelles-test . && docker run --rm faelles-test   # runs for real
-```
-
-Fixtures (`server/test/fixtures/`, committed) are generated by `server/scripts/make-fixtures.sh`
-(re-run it to regenerate; it runs itself inside `alpine:3.20` + the media tools via Docker if they
-aren't on your PATH).
-
-### The `/photos` prefix in both modes
-
-The server accepts requests with or without a leading `/photos` (`rewriteUrl` in `server/src/app.ts`
-strips it before routing). Verify the stripped-prefix mode (what Funnel actually does) with the dev
-backend running:
-
-```sh
-node scripts/strip-proxy.mjs 8499 8498
-# then hit http://127.0.0.1:8499/photos/... — it strips /photos before forwarding to :8498
-```
-
-## Troubleshooting
-
-- **`GET /api/health` shows a tool as `false`**: that media tool wasn't found in the container.
-  Rebuild (`docker compose build --no-cache`) — the `runtime`/`dev` stages install
-  `vips-tools vips-heif ffmpeg exiftool` from `alpine:3.20`. Missing tools don't crash the server;
-  affected items just end up `status: 'failed'` with an honest message, originals stay downloadable.
-- **An item is stuck `processing`**: check `docker compose logs`. Restart the container — anything
-  still `processing` is re-queued on boot.
-- **Locked out with "Too many tries"**: PIN throttling (per-IP lockout, doubling; a global backoff if
-  many failures happen across IPs in an hour). State is in-memory — restarting the container clears
-  it, or just wait out the `Retry-After`.
-- **Uploads fail with 507**: disk guard tripped (`storage`'s filesystem has less than ~10 GiB free
-  plus the upload's own size). Free up space; the guard re-checks every 60s.
-- **`/photos/` 404s or loops**: make sure nothing redirects `/` → `/photos/` — Funnel already strips
-  the prefix, so a redirect would loop. The server never does this; if something upstream does, fix
-  it there.
-
-## Known deviations / gaps (the backend)
-
-See `notes/A.md` for the full list with reasoning. Short version: Live Photos (iPhone HEIC + paired
-.MOV) and Motion Photos (Samsung JPEG + embedded MP4 trailer) are accepted and processed safely but
-**not merged into one item** — `shared/api.ts` has no field for that relationship, so each half
-becomes its own library item. Trash purge (30 days) has no admin UI. `BUILD_VERSION` defaults to
-`dev` unless passed as a build arg.
+<div align="center">
+<sub>Built by <a href="https://github.com/LikeMyCoffe"><b>Eduard-Florentin Enache</b></a> &nbsp;·&nbsp; Data · BI · AI product builder</sub>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:3b82f6,45:1f2a44,100:0d1117&height=90&section=footer" width="100%" alt=""/>
+</div>

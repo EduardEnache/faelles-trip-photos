@@ -5,7 +5,7 @@
 # actually be used on this trip: iPhone and Samsung. No Sony.
 #
 # Runs itself inside a throwaway alpine:3.20 + vips-tools/vips-heif/ffmpeg/
-# exiftool container (same versions verified in BRIEF.md) if those tools
+# exiftool container (same versions as the runtime image) if those tools
 # aren't already on PATH, so it works the same on the host or in CI.
 set -eu
 
